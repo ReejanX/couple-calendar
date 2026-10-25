@@ -37,66 +37,6 @@ def get_default_store():
         "couple/profile": {
             "a": {"name": "Anna", "img": ""},
             "b": {"name": "Daniel", "img": ""}
-        },
-        "events/e1": {
-            "title": "Dinner at Rosa's",
-            "date": offset_date(4),
-            "allDay": False,
-            "start": "18:30",
-            "end": "20:30",
-            "note": "Booked under Daniel. Corner table.",
-            "by": A,
-            "status": "accepted"
-        },
-        "events/e2": {
-            "title": "Anna's birthday",
-            "date": offset_date(9),
-            "allDay": True,
-            "start": "",
-            "end": "",
-            "note": "",
-            "by": B,
-            "status": "accepted"
-        },
-        "events/e3": {
-            "title": "Movie night",
-            "date": offset_date(6),
-            "allDay": False,
-            "start": "19:00",
-            "end": "",
-            "note": "Her pick this time",
-            "by": A,
-            "status": "pending"
-        },
-        "events/e4": {
-            "title": "Weekend at Noosa",
-            "date": offset_date(14),
-            "allDay": True,
-            "start": "",
-            "end": "",
-            "note": "Check-in after 2 pm",
-            "by": B,
-            "status": "pending"
-        },
-        "events/e5": {
-            "title": "Farmers market",
-            "date": offset_date(2),
-            "allDay": False,
-            "start": "08:00",
-            "end": "10:00",
-            "note": "",
-            "by": B,
-            "status": "accepted"
-        },
-        "events/e6": {
-            "title": "Sunset kayak",
-            "date": offset_date(9),
-            "allDay": False,
-            "start": "17:00",
-            "end": "19:00",
-            "note": "",
-            "by": A,
-            "status": "declined"
         }
     }
 

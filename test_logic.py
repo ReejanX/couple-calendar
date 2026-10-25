@@ -47,7 +47,7 @@ def run_tests():
     assert_true("couple/profile" in store, "Store initialized with 'couple/profile'")
     assert_true(store["couple/profile"]["a"]["name"] == "Anna", "Partner 1 initialized as Anna")
     assert_true(store["couple/profile"]["b"]["name"] == "Daniel", "Partner 2 initialized as Daniel")
-    assert_true("events/e1" in store, "Sample events loaded into store")
+    assert_true("events/e1" not in store, "Mock sample events cleared from initial store")
 
     # 2. Two-Session Interaction Test
     # Daniel ("u_you") creates a new event proposal
