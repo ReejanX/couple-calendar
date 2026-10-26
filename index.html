@@ -1082,6 +1082,37 @@
         return a.date.localeCompare(b.date) || (a.allDay === b.allDay ? 0 : (a.allDay ? -1 : 1)) ||
           (a.start || "").localeCompare(b.start || "") || a.title.localeCompare(b.title);
       }
+      function acceptedDateMessage(ev) {
+        var partner = getPartnerName();
+        var title = (ev.title || "").toLowerCase();
+        var pool;
+        if (ev.date < today()) {
+          pool = ["That was a lovely little memory together 💕", "Another sweet story for your collection 📖✨", "Hope this one still makes you smile 💗"];
+        } else if (ev.date === today()) {
+          pool = ["Date day is here! Go make a sweet little memory together 💕", "Today's the day—enjoy every little moment ✨", "It's finally your date day! Have the loveliest time 💗"];
+        } else if (/birthday|annivers|celebrat|special/.test(title)) {
+          pool = ["A little celebration with " + partner + " 🎂✨", "A special day made sweeter together 💕", "A date worth putting a little sparkle on ✨"];
+        } else if (/trip|travel|flight|visit|reunion|adventure/.test(title)) {
+          pool = ["Counting down to your next little adventure ✈️💕", "A new favorite story with " + partner + " is on the way 🗺️✨", "Something lovely to look forward to together 💗"];
+        } else if (/movie|cinema|film|netflix/.test(title)) {
+          pool = ["Movie night with " + partner + " and all the cozy vibes 🍿💕", "Snacks, a good film, and your favorite company 🍿✨", "A cozy little date is on the way 🎬💗"];
+        } else if (/coffee|cafe|café|breakfast|brunch|lunch|dinner|food|restaurant|dessert|cook|bake/.test(title)) {
+          pool = ["Good food and time with " + partner + "—the perfect combo 🍽️💕", "A tasty little date with your favorite person is on the way 😋✨", "Something delicious to look forward to together 💗"];
+        } else if (/walk|hike|beach|park|picnic|garden|outdoor/.test(title)) {
+          pool = ["A little fresh air and hand-holding with " + partner + " 🌿💕", "Wandering somewhere lovely together sounds perfect 🌼✨", "A little sunshine and your favorite company ☀️💗"];
+        } else if (ev.allDay || !ev.start) {
+          pool = ["A whole day together? Best kind of plan 💕", "An entire day for little moments together ✨", "All day with your favorite person sounds lovely 💗"];
+        } else {
+          var hour = Number(ev.start.slice(0, 2));
+          if (hour < 11) pool = ["A bright little morning with " + partner + " to look forward to ☀️💕", "Morning plans with your favorite person? Lovely ✨", "A sweet start to the day together 💗"];
+          else if (hour < 17) pool = ["A lovely afternoon with " + partner + " is on the way 🌷💕", "A little daytime date to look forward to ✨", "Your afternoon just got something lovely 💗"];
+          else pool = ["An evening with " + partner + " to look forward to 🌙💕", "Your favorite company and a lovely night ahead ✨", "A little evening magic for two 💗"];
+        }
+        var key = String(ev.id || "") + "|" + ev.date + "|" + (ev.title || "");
+        var hash = 0;
+        for (var i = 0; i < key.length; i++) hash = (hash * 31 + key.charCodeAt(i)) | 0;
+        return pool[(hash >>> 0) % pool.length];
+      }
 
       /* ---------- permission rules (single source of truth) ----------
          isMine      : I am the one who proposed / last changed this date
@@ -1237,7 +1268,7 @@
             : "✨ You asked " + getPartnerName() + ". Waiting for them to say yes!";
           card.appendChild(msg);
         } else if (ev.status === "accepted") {
-          card.appendChild(el("div", "evpersonal-msg", "💕 It's a date! You and " + getPartnerName() + " are going."));
+          card.appendChild(el("div", "evpersonal-msg", acceptedDateMessage(ev)));
         }
 
         card.addEventListener("click", function () { openDetail(ev.id); });
@@ -1630,7 +1661,7 @@
 
         if (ev.status === "accepted") {
           pill.textContent = "Accepted 💕";
-          banner.textContent = "🎉 It's a date! You and " + getPartnerName() + " are going.";
+          banner.textContent = acceptedDateMessage(ev);
         } else if (ev.status === "pending") {
           if (incoming) {
             pill.textContent = "New Date Proposal 💌";
