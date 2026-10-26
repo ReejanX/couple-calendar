@@ -3,12 +3,14 @@
 
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
   <title>Couple Calendar</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Couple Calendar">
   <meta name="theme-color" content="#FAF6F0">
+  <link rel="icon" type="image/svg+xml" href="app-logo.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="app-logo.png">
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
 
@@ -139,6 +141,7 @@
     [hidden] { display: none !important; }
 
     html, body { height: 100%; margin: 0; padding: 0; }
+    html { touch-action: pan-x pan-y; }
 
     body {
       background: var(--bg);
@@ -1360,14 +1363,48 @@
 
       /* Profile sheet */
       function pfError(msg) { var e = $("pfErr"); e.textContent = msg || ""; e.hidden = !msg; }
+      var heicConverterPromise = null;
+      function convertHeicToJpeg(file) {
+        if (!heicConverterPromise) {
+          heicConverterPromise = new Promise(function (resolve, reject) {
+            if (typeof window.heic2any === "function") { resolve(window.heic2any); return; }
+            var script = document.createElement("script");
+            script.src = "https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js";
+            script.onload = function () {
+              if (typeof window.heic2any === "function") resolve(window.heic2any);
+              else reject(new Error("HEIC converter unavailable"));
+            };
+            script.onerror = function () { reject(new Error("HEIC converter could not be loaded")); };
+            document.head.appendChild(script);
+          });
+        }
+        return heicConverterPromise.then(function (convert) {
+          return convert({ blob: file, toType: "image/jpeg", quality: 0.9 });
+        }).then(function (result) {
+          return Array.isArray(result) ? result[0] : result;
+        });
+      }
+      function readProfilePhoto(file, onReady, onError) {
+        var isHeic = /\.(heic|heif)$/i.test(file.name || "") || /image\/(heic|heif)/i.test(file.type || "");
+        var sourcePromise = isHeic ? convertHeicToJpeg(file) : Promise.resolve(file);
+        sourcePromise.then(function (source) {
+          var reader = new FileReader();
+          reader.onload = function (evt) { onReady(evt.target.result); };
+          reader.onerror = function () { onError("Could not read file from device."); };
+          reader.readAsDataURL(source);
+        }).catch(function () {
+          onError(isHeic ? "Could not convert this HEIC photo. Try saving it as JPEG and choose it again." : "Could not read image file.");
+        });
+      }
       function paintPf(k) {
         var prev = $("pfPrev" + k);
+        var file = $("pfFile" + k);
         prev.textContent = "";
         var p = state.draft[k], s = el("span", "avatar");
         if (p.img) { var im = document.createElement("img"); im.alt = ""; im.src = p.img; s.appendChild(im); } else { s.innerHTML = ICON.user; }
         prev.appendChild(s);
         var cam = el("span", "cam"); cam.innerHTML = ICON.cam; prev.appendChild(cam);
-        prev.appendChild($("pfFile" + k));
+        prev.appendChild(file);
         $("pfRemove" + k).hidden = !p.img;
       }
 
@@ -1379,13 +1416,12 @@
           prev.setAttribute("aria-label", "Choose photo for " + (k === "a" ? "Reejan" : "Shreya"));
 
           var file = document.createElement("input");
-          file.type = "file"; file.accept = "image/*"; file.id = "pfFile" + k;
+          file.type = "file"; file.accept = "image/*,.heic,.heif"; file.id = "pfFile" + k;
           file.addEventListener("change", function () {
             var f = file.files && file.files[0];
             if (!f) return;
             pfError("");
-            var reader = new FileReader();
-            reader.onload = function (evt) {
+            readProfilePhoto(f, function (imageData) {
               var img = new Image();
               img.onload = function () {
                 try {
@@ -1400,10 +1436,8 @@
                 } catch (e) { pfError("Could not crop photo. Try another image."); }
               };
               img.onerror = function () { pfError("Could not read image file."); };
-              img.src = evt.target.result;
-            };
-            reader.onerror = function () { pfError("Could not read file from device."); };
-            reader.readAsDataURL(f);
+              img.src = imageData;
+            }, pfError);
           });
           prev.appendChild(file);
 
