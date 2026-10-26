@@ -15,7 +15,6 @@
   <!-- Firebase Compat SDK for free 24/7 internet sync -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="firebase-config.js"></script>
 
   <style>
@@ -363,7 +362,7 @@
     .field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
     .flabel { font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
 
-    input[type="text"], input[type="password"], input[type="date"], input[type="time"], textarea, select {
+    input[type="text"], input[type="date"], input[type="time"], textarea, select {
       width: 100%; min-width: 0; min-height: 48px; background: var(--surface-2); border: 1.5px solid var(--line);
       border-radius: 14px; padding: 12px 14px; font-size: 16px; color: var(--fg); -webkit-appearance: none; appearance: none;
       transition: border-color 0.15s ease, background-color 0.15s ease;
@@ -729,25 +728,6 @@
     </div>
   </section>
 
-  <!-- Entry code (first time on a phone) -->
-  <section class="sheet" id="sheetCode" role="dialog" aria-modal="true" aria-labelledby="codeTitle" hidden>
-    <div class="grab"></div>
-    <div class="shead">
-      <h2 id="codeTitle">Enter your entry code 🔒</h2>
-    </div>
-    <form id="codeForm" novalidate>
-      <p class="formnote" style="font-size: 0.95rem;">This calendar is private. Enter the code you and your partner
-        share to continue. You only need to do this once on each phone.</p>
-      <div class="field">
-        <label class="flabel" for="codeInput">Entry code</label>
-        <input type="password" id="codeInput" autocomplete="off" autocapitalize="off" spellcheck="false"
-          maxlength="64" placeholder="Entry code">
-      </div>
-      <p class="err" id="codeErr" role="alert" hidden></p>
-      <button type="submit" class="btn primary grow" id="btnCode" style="height: 52px; font-size: 1.05rem;">Unlock</button>
-    </form>
-  </section>
-
   <div class="toast" id="toast" role="status" hidden></div>
 
   <!-- ===================================================================
@@ -762,19 +742,24 @@
 
       function safeGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
       function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { } }
+      function safeDel(k) { try { localStorage.removeItem(k); } catch (e) { } }
 
-      // Local-only mode (no Firebase) identifies this browser with a random id.
+      // Every phone/browser gets a permanent random id. A "spot" (Reejan or Shreya) is claimed by this id.
       var deviceId = safeGet("couple_device_id");
       if (!deviceId) {
         deviceId = "d_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
         safeSet("couple_device_id", deviceId);
       }
 
+      var myUserId = safeGet("couple_device_user");
+      if (myUserId !== USER_A && myUserId !== USER_B) myUserId = null;
+
       var defaultStore = {
         "couple/profile": {
           a: { name: "Reejan", img: "" },
           b: { name: "Shreya", img: "" }
-        }
+        },
+        "couple/claims": {}
       };
 
       var LOCAL_KEY = "couple_calendar_store_clean_v2";
@@ -796,11 +781,9 @@
       var store = loadLocalStore() || defaultStore;
       var subs = [];
       var errSubs = [];
-      var phaseSubs = [];
       var lastErrAt = 0;
 
       function notify() { subs.forEach(function (s) { try { s(); } catch (e) { } }); }
-      function notifyPhase() { phaseSubs.forEach(function (f) { try { f(); } catch (e) { } }); }
       function emitErr(msg) {
         var now = Date.now();
         if (now - lastErrAt < 4000) return;
@@ -824,139 +807,87 @@
         return Promise.race([p, new Promise(function (res) { setTimeout(res, 8000); })]);
       }
 
-      /* ------------------------------------------------------------------
-         PHASES:  loading -> code (needs entry code) -> pick (choose Reejan/Shreya) -> ready
-                  error  (could not sign in / reach the server)
-         ------------------------------------------------------------------ */
-      var fbDb = null, fbAuth = null;
-      var isFirebaseActive = false;
-      var authUid = null;
-      var hasEntry = false, gotSpots = false, gotEntry = false;
-      var failed = "";
-      var dataAttached = false;
-      var phase = "loading";
-      var readyResolve;
-      var readyPromise = new Promise(function (res) { readyResolve = res; });
-
-      function selfId() { return isFirebaseActive ? authUid : deviceId; }
-      function spots() { return store["couple/spots"] || {}; }
-      function mySpot() {
-        var s = spots(), me = selfId();
-        if (!me) return null;
-        if (s[USER_A] === me) return USER_A;
-        if (s[USER_B] === me) return USER_B;
-        return null;
-      }
-
-      function computePhase() {
-        if (!isFirebaseActive) phase = mySpot() ? "ready" : "pick";
-        else if (failed) phase = "error";
-        else if (!(gotSpots && gotEntry)) phase = "loading";
-        else if (mySpot()) phase = "ready";
-        else if (hasEntry) phase = "pick";
-        else phase = "code";
-
-        if (phase === "ready" && !dataAttached) attachData();
-        if (phase !== "loading") readyResolve();
-        notifyPhase();
-      }
-      function fail(msg) { failed = msg; computePhase(); }
-
       var channel = null;
       try {
         channel = new BroadcastChannel("couple_calendar_clean_channel");
         channel.onmessage = function (ev) {
-          if (ev.data && ev.data.store && !isFirebaseActive) {
+          if (ev.data && ev.data.store) {
             store = ev.data.store;
             saveLocalStore(store);
-            computePhase();
+            notifyClaims();
             notify();
           }
         };
       } catch (e) { }
 
-      /* Cloud data (profile + events) is only loaded AFTER this phone is unlocked and holds a spot. */
-      function attachData() {
-        dataAttached = true;
-        if (!isFirebaseActive || !fbDb) return;
-
-        fbDb.ref("couple/profile").on("value", function (snap) {
-          var val = snap.val();
-          if (val) {
-            store["couple/profile"] = val;
-            saveLocalStore(store);
-            notify();
-          } else {
-            fbDb.ref("couple/profile").set(defaultStore["couple/profile"]).catch(function () { });
-          }
-        }, function () { emitErr("Can't read from the cloud. Check the Firebase rules."); });
-
-        fbDb.ref("events").on("value", function (snap) {
-          var val = snap.val();
-          Object.keys(store).forEach(function (k) { if (k.indexOf("events/") === 0) delete store[k]; });
-          if (val && Object.keys(val).length) {
-            Object.keys(val).forEach(function (k) {
-              if (["e1", "e2", "e3", "e4", "e5", "e6"].indexOf(k) < 0) store["events/" + k] = val[k];
-              else fbDb.ref("events/" + k).remove().catch(function () { });
-            });
-          }
-          saveLocalStore(store);
-          notify();
-        }, function () { emitErr("Can't read dates from the cloud. Check the Firebase rules."); });
+      // ---- claims (who owns which spot) ----
+      var claimSubs = [];
+      var claimsStatus = "loading"; // loading | ok | error
+      var readyResolve;
+      var readyPromise = new Promise(function (res) { readyResolve = res; });
+      function claims() { return store["couple/claims"] || {}; }
+      function notifyClaims() { claimSubs.forEach(function (f) { try { f(claims()); } catch (e) { } }); }
+      function setStatus(s) {
+        claimsStatus = s;
+        if (s !== "loading") readyResolve();
+        notifyClaims();
       }
 
-      function listenGate(uid) {
-        fbDb.ref("couple/spots").on("value", function (snap) {
-          store["couple/spots"] = snap.val() || {};
-          gotSpots = true;
-          computePhase();
-          notify();
-        }, function () { fail("Couldn't read from the server. Check the Firebase rules."); });
-
-        fbDb.ref("couple/entry/" + uid).on("value", function (snap) {
-          hasEntry = snap.exists();
-          gotEntry = true;
-          computePhase();
-        }, function () { fail("Couldn't read from the server. Check the Firebase rules."); });
-      }
-
+      // ---- Firebase ----
+      var fbDb = null;
+      var isFirebaseActive = false;
       if (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey && window.firebase) {
-        isFirebaseActive = true;
         try {
           var config = Object.assign({}, window.FIREBASE_CONFIG);
           if (!config.databaseURL && config.projectId) {
             config.databaseURL = "https://" + config.projectId + "-default-rtdb.firebaseio.com";
           }
           if (!firebase.apps.length) firebase.initializeApp(config);
-          if (!firebase.auth) throw new Error("auth-missing");
           fbDb = firebase.database();
-          fbAuth = firebase.auth();
+          isFirebaseActive = true;
 
-          // Never show cached cloud data to a phone that hasn't unlocked yet.
-          Object.keys(store).forEach(function (k) {
-            if (k.indexOf("events/") === 0 || k === "couple/spots" || k === "couple/claims") delete store[k];
+          fbDb.ref("couple/profile").on("value", function (snap) {
+            var val = snap.val();
+            if (val) {
+              store["couple/profile"] = val;
+              saveLocalStore(store);
+              notify();
+            } else {
+              fbDb.ref("couple/profile").set(defaultStore["couple/profile"]).catch(function () { });
+            }
+          }, function () { emitErr("Can't read from the cloud. Check the Firebase rules."); });
+
+          fbDb.ref("couple/claims").on("value", function (snap) {
+            store["couple/claims"] = snap.val() || {};
+            saveLocalStore(store);
+            setStatus("ok");
+            notify();
+          }, function () {
+            setStatus("error");
+            emitErr("Can't read from the cloud. Check the Firebase rules.");
           });
 
-          fbAuth.onAuthStateChanged(function (user) {
-            if (user) {
-              if (authUid !== user.uid) { authUid = user.uid; listenGate(user.uid); }
-            } else {
-              fbAuth.signInAnonymously().catch(function (e) {
-                fail(e && e.code === "auth/operation-not-allowed"
-                  ? "Anonymous sign-in is switched off in Firebase (Authentication > Sign-in method)."
-                  : "Couldn't sign in. Check your connection and reload.");
+          fbDb.ref("events").on("value", function (snap) {
+            var val = snap.val();
+            Object.keys(store).forEach(function (k) { if (k.indexOf("events/") === 0) delete store[k]; });
+            if (val && Object.keys(val).length) {
+              Object.keys(val).forEach(function (k) {
+                if (["e1", "e2", "e3", "e4", "e5", "e6"].indexOf(k) < 0) store["events/" + k] = val[k];
+                else fbDb.ref("events/" + k).remove().catch(function () { });
               });
             }
-          });
-          setTimeout(function () { if (phase === "loading") fail("Couldn't reach the server. Check your connection and reload."); }, 10000);
+            saveLocalStore(store);
+            notify();
+          }, function () { emitErr("Can't read dates from the cloud. Check the Firebase rules."); });
+
+          setTimeout(function () { if (claimsStatus === "loading") setStatus("error"); }, 6000);
         } catch (e) {
-          console.warn("Firebase start error:", e);
-          fail(e && e.message === "auth-missing"
-            ? "Firebase Auth didn't load. Check the firebase-auth script tag in index.html."
-            : "Couldn't start Firebase. Reload and try again.");
+          console.warn("Firebase sync error:", e);
+          isFirebaseActive = false;
+          setStatus("ok");
         }
       } else {
-        computePhase(); // local-only mode
+        setStatus("ok"); // local-only mode
       }
 
       function mutateSync(action, path, value) {
@@ -1019,35 +950,53 @@
         };
       }
 
+      // ---- locked identity ----
+      function setUser(id) { myUserId = id; safeSet("couple_device_user", id); }
+      function dropUser() { myUserId = null; safeDel("couple_device_user"); }
       function otherOf(id) { return id === USER_A ? USER_B : USER_A; }
 
-      // Resolves true only if this phone now holds the spot. First come, first served; can't be taken over.
-      function tryClaim(spot) {
-        var me = selfId(), c = spots();
-        if (!me) return Promise.resolve(false);
-        if (c[spot] === me) return Promise.resolve(true);
-        if (c[spot]) return Promise.resolve(false);
-        if (c[otherOf(spot)] === me) return Promise.resolve(false);
-        if (isFirebaseActive) {
-          if (!fbDb || !hasEntry) return Promise.resolve(false); // need the entry code first
+      // Resolves true only if this device now holds the spot. Spots are first-come, first-served and can't be taken over.
+      function tryClaim(userId) {
+        var c = claims();
+        if (c[userId] === deviceId) return Promise.resolve(true);
+        if (c[userId]) return Promise.resolve(false);                 // someone else has it
+        if (c[otherOf(userId)] === deviceId) return Promise.resolve(false); // this phone already holds the other spot
+        if (isFirebaseActive && fbDb) {
           return withTimeout(
-            fbDb.ref("couple/spots/" + spot).transaction(function (cur) {
-              if (cur === null || cur === undefined) return me;
+            fbDb.ref("couple/claims/" + userId).transaction(function (cur) {
+              if (cur === null || cur === undefined) return deviceId;
               return undefined; // abort: already taken
             }, undefined, false), 8000
           ).then(function (res) {
-            return !!(res.committed && res.snapshot && res.snapshot.val() === me);
+            return !!(res.committed && res.snapshot && res.snapshot.val() === deviceId);
           });
         }
-        var upd = {}; upd[spot] = me;
-        store["couple/spots"] = merge(store["couple/spots"] || {}, upd);
+        var upd = {}; upd[userId] = deviceId;
+        store["couple/claims"] = merge(store["couple/claims"] || {}, upd);
         mutateSync("local", "", null);
-        computePhase();
+        notifyClaims();
         return Promise.resolve(true);
       }
 
+      // Called once at startup: restore, validate or migrate this phone's identity.
+      function reconcile() {
+        if (claimsStatus !== "ok") return Promise.resolve(); // can't verify; keep what we have
+        var c = claims();
+        if (!myUserId) {
+          if (c[USER_A] === deviceId) setUser(USER_A);
+          else if (c[USER_B] === deviceId) setUser(USER_B);
+          return Promise.resolve();
+        }
+        if (c[myUserId] === deviceId) return Promise.resolve();
+        if (!c[myUserId]) { // phone was set up before locking existed: claim it now
+          return tryClaim(myUserId).then(function (ok) { if (!ok) dropUser(); }).catch(function () { });
+        }
+        dropUser(); // spot belongs to a different phone
+        return Promise.resolve();
+      }
+
       var userApi = {
-        id: function () { return Promise.resolve(mySpot()); },
+        id: function () { return Promise.resolve(myUserId); },
         can: function () { return Promise.resolve(true); }
       };
 
@@ -1062,29 +1011,18 @@
       window.coupleApp = {
         USER_A: USER_A,
         USER_B: USER_B,
-        isClaimed: function () { return !!mySpot(); },
-        getMyUserId: mySpot,
-        getClaims: spots,
-        getPhase: function () { return phase; },
-        getStatus: function () { return phase === "error" ? "error" : "ok"; },
-        getErrorMsg: function () { return failed; },
-        onClaims: function (fn) { phaseSubs.push(fn); },
+        isClaimed: function () { return !!myUserId; },
+        getClaims: claims,
+        getStatus: function () { return claimsStatus; },
+        onClaims: function (fn) { claimSubs.push(fn); },
         onSyncError: function (fn) { errSubs.push(fn); },
-        ready: function () { return readyPromise; },
-        // Writes the entry code; Firebase rules accept it only if it matches the secret.
-        submitCode: function (code) {
-          if (!isFirebaseActive) return Promise.resolve();
-          if (!fbDb || !authUid) return Promise.reject(new Error("network"));
-          return withTimeout(fbDb.ref("couple/entry/" + authUid).set(String(code).trim()), 8000).then(function () { }, function (e) {
-            throw new Error(e && e.message === "timeout" ? "network" : "wrong");
-          });
-        },
+        ready: function () { return readyPromise.then(reconcile); },
         claimDevice: function (userId) {
           if (userId !== USER_A && userId !== USER_B) return Promise.reject(new Error("invalid"));
-          var mine = mySpot();
-          if (mine && mine !== userId) return Promise.reject(new Error("locked"));
+          if (myUserId && myUserId !== userId) return Promise.reject(new Error("locked"));
           return tryClaim(userId).then(function (ok) {
             if (!ok) throw new Error("taken");
+            setUser(userId);
             window.location.reload();
           });
         }
@@ -1411,11 +1349,11 @@
       }
 
       /* Sheets */
-      var SHEETS = ["sheetProfile", "sheetEvent", "sheetDetail", "sheetSetup", "sheetCode"];
+      var SHEETS = ["sheetProfile", "sheetEvent", "sheetDetail", "sheetSetup"];
       function hideAll() { SHEETS.forEach(function (i) { $(i).hidden = true; }); $("scrim").hidden = true; }
       function closeSheets() {
         // The "who are you?" screen can't be dismissed until this phone has a locked identity.
-        if ((!$("sheetSetup").hidden || !$("sheetCode").hidden) && !window.coupleApp.isClaimed()) return;
+        if (!$("sheetSetup").hidden && !window.coupleApp.isClaimed()) return;
         hideAll(); state.detailId = null; state.editingId = null; document.body.style.overflow = "";
       }
       function showSheet(id) { hideAll(); $("scrim").hidden = false; $(id).hidden = false; document.body.style.overflow = "hidden"; $(id).scrollTop = 0; }
@@ -1710,7 +1648,7 @@
         });
         var msg = $("setupMsg"), btn = $("btnConfirmSetup");
         if (status !== "ok") {
-          msg.textContent = window.coupleApp.getErrorMsg() || "Can't reach the server right now. Check your connection and reload.";
+          msg.textContent = "Can't reach the server right now. Check your connection and reload.";
         } else if (free === 0) {
           msg.textContent = "Both spots are already taken. This calendar is for two people only.";
         } else {
@@ -1741,36 +1679,7 @@
           renderSetup();
         });
       });
-      /* ---------- Entry code screen + gate routing ---------- */
-      function codeErr(msg) { var e = $("codeErr"); e.textContent = msg || ""; e.hidden = !msg; }
-      function showCodeModal() {
-        $("codeInput").value = "";
-        codeErr("");
-        showSheet("sheetCode");
-        setTimeout(function () { $("codeInput").focus(); }, 150);
-      }
-      $("codeForm").addEventListener("submit", function (e) {
-        e.preventDefault();
-        var v = $("codeInput").value.trim();
-        if (!v) { codeErr("Enter the entry code."); return; }
-        var btn = $("btnCode");
-        btn.disabled = true; codeErr("");
-        window.coupleApp.submitCode(v).catch(function (err) {
-          codeErr(err && err.message === "wrong" ? "That code isn't right. Try again." : "Couldn't reach the server. Check your connection and try again.");
-        }).then(function () { btn.disabled = false; });
-      });
-
-      // Decides which gate screen to show: entry code -> pick who you are -> app.
-      function routeGate() {
-        var ph = window.coupleApp.getPhase();
-        if (ph === "loading" || ph === "ready") return;
-        if (ph === "code") {
-          if ($("sheetCode").hidden) showCodeModal();
-        } else { // "pick" or "error"
-          if ($("sheetSetup").hidden) showSetupModal(); else renderSetup();
-        }
-      }
-      window.coupleApp.onClaims(routeGate);
+      window.coupleApp.onClaims(function () { if (!$("sheetSetup").hidden) renderSetup(); });
       window.coupleApp.onSyncError(function (m) { toast(m); });
 
       /* Wiring */
@@ -1851,7 +1760,7 @@
           render();
         });
 
-        routeGate();
+        if (!window.coupleApp.isClaimed()) setTimeout(showSetupModal, 100);
       }
 
       start();
