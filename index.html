@@ -335,7 +335,7 @@
     .addbtn:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: var(--shadow-lg); }
     .tabs {
       position: fixed; z-index: 20; left: 50%; transform: translateX(-50%); bottom: 0; width: min(100%, 440px);
-      background: var(--surface); border-top: 1px solid var(--line); display: grid; grid-template-columns: 1fr 1fr;
+      background: var(--surface); border-top: 1px solid var(--line); display: grid; grid-template-columns: 1fr 1fr 1fr;
       padding-bottom: env(safe-area-inset-bottom, 0px);
       padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px));
     }
@@ -348,7 +348,73 @@
     .tab svg { width: 22px; height: 22px; }
     .tab[aria-current="page"] { color: var(--accent); font-weight: 700; }
     .tab[aria-current="page"] .tab-indicator { background: var(--accent-soft); }
-
+    .mem-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin:8px 0 18px; }
+    .mem-head h2 { margin:0 0 4px; font-size:1.35rem; }
+    .mem-head p,.mem-hint { margin:0; color:var(--muted); font-size:.9rem; line-height:1.45; }
+    .mem-head .mem-refresh-hint { margin-top:5px; font-size:.75rem; opacity:.78; }
+    .mem-card { background:var(--surface); border:1px solid var(--line); border-radius:20px; padding:16px; margin:12px 0; box-shadow:var(--shadow); }
+    .mem-date { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .mem-date h3 { margin:0 0 4px; font-size:1rem; }
+    .mem-date p { margin:0; color:var(--muted); font-size:.84rem; }
+    .mem-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+    .mem-button { min-height:42px; padding:9px 14px; border-radius:13px; border:1px solid var(--line); background:var(--surface-2); color:var(--fg); font-weight:700; }
+    .mem-button.primary { background:var(--accent); border-color:var(--accent); color:var(--accent-fg); }
+    .mem-section-title { margin:22px 2px 8px; font-size:1.05rem; }
+    .mem-booths-scroll { display:flex; gap:12px; overflow-x:auto; overscroll-behavior-x:contain; scroll-snap-type:x mandatory; padding:8px 4px 18px; margin:0 -12px; -webkit-overflow-scrolling:touch; }
+    .mem-booths-scroll .mem-booth-preview { flex:0 0 min(94vw,560px); scroll-snap-align:start; }
+    .mem-past-date { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .mem-pile { height:60vh; height:60dvh; min-height:280px; max-height:680px; width:100%; box-sizing:border-box; display:grid; grid-template-columns:repeat(auto-fill,minmax(92px,1fr)); align-content:start; align-items:start; justify-items:center; gap:12px; overflow-y:auto; margin:14px 0; border-radius:18px; padding:16px; background:linear-gradient(135deg,#a77b58,#785438); }
+    .mem-pile.is-crowded { column-gap:4px; row-gap:4px; }
+    .pile-photo { position:relative; width:100%; max-width:112px; padding:6px 6px 10px; border:0; border-radius:1px; background:#fff; box-shadow:0 5px 13px #35201255; transform:rotate(var(--tilt)); cursor:pointer; transition:transform .18s ease, box-shadow .18s ease; }
+    .pile-photo.is-selected { z-index:5; outline:3px solid #e3547b; transform:rotate(0deg) scale(1.04); box-shadow:0 8px 20px #24150f88; }
+    .mem-pile.is-crowded .pile-item { margin:0 -5px -5px 0; }
+    .pile-photo img { width:100%; aspect-ratio:1; object-fit:cover; display:block; pointer-events:none; }
+    .pile-item { position:relative; width:100%; max-width:112px; }
+    .pile-item .pile-photo { display:block; }
+    .pile-delete { position:absolute; z-index:8; top:-7px; right:-7px; width:28px; height:28px; display:grid; place-items:center; border:2px solid #fff; border-radius:50%; background:#a8405b; color:#fff; box-shadow:0 2px 8px #24150f66; font-size:19px; line-height:1; font-weight:700; cursor:pointer; }
+    .pile-delete[hidden], .booth-photo-delete[hidden] { display:none; }
+    .pile-item.is-selected { z-index:20 !important; }
+    .mem-pile.is-crowded .pile-item:nth-child(3n+2) { transform:translateX(-7px); }
+    .mem-pile.is-crowded .pile-item:nth-child(3n+1) { transform:translateY(-4px); }
+    .booth-stage { position:relative; width:100%; max-width:560px; margin:22px auto 30px; }
+    .booth-memory-card { position:absolute; left:0; top:0; width:80%; min-height:320px; box-sizing:border-box; padding:15px 10% 14px 14px; border:1px solid #e8e2d9; background:#f2efe9; box-shadow:0 10px 28px #432c3026; color:#453f38; display:flex; flex-direction:column; }
+    .booth-card-title { font:700 .8rem/1.3 Georgia,serif; letter-spacing:.12em; text-transform:uppercase; }
+    .booth-card-layout { display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:9px; flex:1; min-height:0; }
+    .booth-collage { display:grid; grid-template-rows:minmax(0,1fr) auto; gap:6px; min-width:0; }
+    .booth-collage-hero { width:100%; height:100%; min-height:110px; object-fit:cover; background:#ddd; }
+    .booth-collage-thumbs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px; }
+    .booth-collage-thumbs img,.booth-empty-thumb { width:100%; aspect-ratio:1.25; object-fit:cover; background:#e4dfd7; }
+    .booth-empty-slot { display:grid; place-items:center; background:#e4dfd7; color:#93897f; font-size:.72rem; text-align:center; }
+    .booth-card-note { min-height:48px; color:#665c55; font:italic .84rem/1.4 "Snell Roundhand","Segoe Script",cursive; white-space:pre-wrap; overflow-wrap:anywhere; }
+    .booth-card-note[contenteditable="true"] { outline:none; cursor:text; }
+    .booth-card-note[contenteditable="true"]:focus { outline:1px dashed #bd8798; outline-offset:3px; }
+    .booth-card-note[data-placeholder]:empty::before { content:attr(data-placeholder); color:#9a8d88; }
+    .booth-card-layout > .booth-card-note { align-self:stretch; padding:8px 2px; font-size:.75rem; }
+    .booth-card-footer { display:flex; align-items:flex-end; justify-content:space-between; gap:8px; margin-top:12px; padding-top:8px; border-top:1px solid #ded8d0; }
+    .booth-card-footer .booth-card-title { overflow-wrap:anywhere; }
+    .booth-card-date { flex:none; color:#786e67; font-size:.65rem; letter-spacing:.08em; text-align:right; }
+    .mem-booth-preview { display:block; width:100%; padding:0; border:0; background:transparent; color:inherit; text-align:left; cursor:pointer; }
+    .mem-booth-preview .booth-stage { margin:4px auto; pointer-events:none; }
+    .booth-strip { position:absolute; top:20px; right:1%; z-index:3; width:30%; box-sizing:border-box; padding:10px 9px 14px; background:#fff; box-shadow:0 10px 25px #37261f55; transform:rotate(6deg); }
+    .booth-strip-photos { display:grid; grid-template-columns:1fr; gap:6px; }
+    .booth-strip-item { position:relative; cursor:grab; touch-action:none; }
+    .booth-strip-item.is-selected { outline:2px solid #e3547b; outline-offset:2px; }
+    .booth-photo-pick { display:block; width:100%; padding:0; border:0; background:transparent; cursor:grab; }
+    .booth-strip-item.is-dragging { opacity:.45; }
+    .booth-strip-item.is-drop-target { outline:2px dashed #e3547b; outline-offset:2px; }
+    .booth-strip-photo { width:100%; aspect-ratio:4/3; object-fit:cover; border:5px solid #fff; box-sizing:border-box; background:#ddd; box-shadow:0 1px 4px #0002; display:block; pointer-events:none; }
+    .booth-photo-delete { position:absolute; z-index:5; top:2px; right:2px; width:25px; height:25px; display:grid; place-items:center; border:2px solid #fff; border-radius:50%; background:#a8405b; color:#fff; box-shadow:0 2px 8px #24150f66; font-size:17px; line-height:1; font-weight:700; cursor:pointer; }
+    .booth-strip-footer { display:grid; gap:7px; margin-top:8px; padding:8px 3px 0; border-top:1px solid #eee; color:#49413d; font:700 .59rem/1.3 Georgia,serif; letter-spacing:.08em; text-align:center; text-transform:uppercase; }
+    .booth-strip-footer span:last-child { font-size:.5rem; font-weight:400; }
+    @media (max-width:380px) { .booth-stage { margin-left:-4px; width:calc(100% + 8px); } .booth-memory-card { width:80%; padding:12px 10% 12px 10px; } .booth-strip { width:32%; padding:7px 6px 10px; } }
+    .booth-note { min-height:90px; margin:14px -18px 0; padding:14px 18px 20px; border-top:1px solid #eee; font:italic 1rem/1.5 Georgia,serif; white-space:pre-wrap; overflow-wrap:anywhere; }
+    .booth-editor-note { width:100%; }
+    .mem-upload { display:none; }
+    .mem-empty { text-align:center; color:var(--muted); padding:24px 12px; }
+    .sync-indicator { position:fixed; z-index:60; left:50%; bottom:calc(78px + env(safe-area-inset-bottom, 0px)); transform:translateX(-50%); display:flex; align-items:center; gap:9px; max-width:min(88vw,360px); padding:9px 14px; border:1px solid var(--line); border-radius:999px; background:var(--surface); color:var(--fg); box-shadow:var(--shadow-lg); font-size:.82rem; font-weight:700; }
+    .sync-indicator[hidden] { display:none; }
+    .sync-indicator img { width:23px; height:23px; object-fit:contain; animation:sync-pulse .9s ease-in-out infinite alternate; }
+    @keyframes sync-pulse { from { transform:scale(.88); opacity:.65; } to { transform:scale(1); opacity:1; } }
     /* Sheets */
     .scrim { position: fixed; inset: 0; z-index: 30; background: rgba(30, 20, 25, 0.48); backdrop-filter: blur(3px); }
     .sheet {
@@ -541,8 +607,18 @@
         <div class="daytools"><button class="linkbtn" id="todayBtn" type="button" hidden>Back to today</button></div>
         <ul class="timeline" id="dayList" style="margin-top: 10px"></ul>
       </section>
+
+      <section id="viewMemories" aria-label="Memories" hidden>
+        <div class="mem-head">
+          <div><h2 id="memTitle">Little memories 💕</h2><p id="memSubtitle">Your dates and all the little moments you keep.</p><p class="mem-refresh-hint">Pull down to refresh</p></div>
+        </div>
+        <div id="memoriesContent"></div>
+      </section>
     </main>
   </div>
+
+  <input class="mem-upload" id="memoryUpload" type="file" accept="image/*,.heic,.heif" multiple aria-label="Choose memories photos">
+  <input class="mem-upload" id="boothAddPhoto" type="file" accept="image/*,.heic,.heif" multiple aria-label="Choose photo booth photos">
 
   <div class="addwrap" id="addWrap" hidden>
     <button class="addbtn" id="addBtn" type="button">
@@ -573,6 +649,10 @@
         </svg>
       </div>
       <span>Calendar View</span>
+    </button>
+    <button class="tab" id="tabMem" type="button">
+      <div class="tab-indicator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="8.5" cy="9" r="1.5"/><path d="m21 15-5-5L5 20"/></svg></div>
+      <span>Memories</span>
     </button>
   </nav>
 
@@ -732,6 +812,7 @@
   </section>
 
   <div class="toast" id="toast" role="status" hidden></div>
+  <div class="sync-indicator" id="syncIndicator" role="status" aria-live="polite" hidden><img src="app-logo.png" alt=""><span id="syncIndicatorText"></span></div>
 
   <!-- ===================================================================
        DATA LAYER: local store + Firebase sync + locked two-person claims
@@ -826,6 +907,7 @@
       // ---- claims (who owns which spot) ----
       var claimSubs = [];
       var claimsStatus = "loading"; // loading | ok | error
+      var syncMode = "local", syncMessage = "This session is saving on this device only.";
       var readyResolve;
       var readyPromise = new Promise(function (res) { readyResolve = res; });
       function claims() { return store["couple/claims"] || {}; }
@@ -834,6 +916,13 @@
         claimsStatus = s;
         if (s !== "loading") readyResolve();
         notifyClaims();
+      }
+      function reportFirebaseError(area, error) {
+        syncMode = "error";
+        var code = error && (error.code || error.message) || "unknown error";
+        syncMessage = area + " failed: " + code + ". Check Firebase rules and connection.";
+        console.error("Firebase " + area + " failed:", error);
+        emitErr(syncMessage);
       }
 
       // ---- Firebase ----
@@ -848,6 +937,7 @@
           if (!firebase.apps.length) firebase.initializeApp(config);
           fbDb = firebase.database();
           isFirebaseActive = true;
+          syncMode = "connecting"; syncMessage = "Connecting to Firebase…";
 
           fbDb.ref("couple/profile").on("value", function (snap) {
             var val = snap.val();
@@ -856,18 +946,20 @@
               saveLocalStore(store);
               notify();
             } else {
-              fbDb.ref("couple/profile").set(defaultStore["couple/profile"]).catch(function () { });
+              fbDb.ref("couple/profile").set(defaultStore["couple/profile"]).catch(function (error) { reportFirebaseError("profile setup", error); });
             }
-          }, function () { emitErr("Can't read from the cloud. Check the Firebase rules."); });
+            if (val) { syncMode = "cloud"; syncMessage = "Connected to Firebase. Shared data is syncing."; }
+          }, function (error) { reportFirebaseError("profile read", error); });
 
           fbDb.ref("couple/claims").on("value", function (snap) {
             store["couple/claims"] = snap.val() || {};
             saveLocalStore(store);
+            syncMode = "cloud"; syncMessage = "Connected to Firebase. Shared data is syncing.";
             setStatus("ok");
             notify();
-          }, function () {
+          }, function (error) {
             setStatus("error");
-            emitErr("Can't read from the cloud. Check the Firebase rules.");
+            reportFirebaseError("database read", error);
           });
 
           fbDb.ref("events").on("value", function (snap) {
@@ -881,27 +973,41 @@
             }
             saveLocalStore(store);
             notify();
-          }, function () { emitErr("Can't read dates from the cloud. Check the Firebase rules."); });
+          }, function (error) { reportFirebaseError("dates read", error); });
+
+          fbDb.ref("memories").on("value", function (snap) {
+            Object.keys(store).forEach(function (k) { if (k.indexOf("memories/") === 0) delete store[k]; });
+            var memories = snap.val() || {};
+            ["photos", "booths"].forEach(function (group) {
+              var values = memories[group] || {};
+              Object.keys(values).forEach(function (id) { store["memories/" + group + "/" + id] = values[id]; });
+            });
+            saveLocalStore(store);
+            notify();
+          }, function (error) { reportFirebaseError("memories read", error); });
 
           setTimeout(function () { if (claimsStatus === "loading") setStatus("error"); }, 6000);
         } catch (e) {
           console.warn("Firebase sync error:", e);
           isFirebaseActive = false;
-          setStatus("ok");
+          syncMode = "error"; syncMessage = "Firebase could not start: " + (e.code || e.message || "check configuration and network");
+          setStatus("error");
         }
       } else {
+        syncMode = window.FIREBASE_CONFIG ? "error" : "local";
+        syncMessage = window.FIREBASE_CONFIG ? "Firebase SDK did not load. Use the hosted app or check the network." : "This session is saving on this device only.";
         setStatus("ok"); // local-only mode
       }
 
       function mutateSync(action, path, value) {
+        if (window.FIREBASE_CONFIG && !isFirebaseActive) return Promise.reject(new Error("firebase-unavailable"));
         saveLocalStore(store);
         if (channel) { try { channel.postMessage({ type: "sync", store: store }); } catch (e) { } }
         if (isFirebaseActive && fbDb) {
           try {
             var r = fbDb.ref(path);
-            if (action === "set" || action === "add") return settle(r.set(value));
-            if (action === "update") return settle(r.update(value));
-            if (action === "delete") return settle(r.remove());
+            var write = action === "set" || action === "add" ? r.set(value) : (action === "update" ? r.update(value) : (action === "delete" ? r.remove() : Promise.resolve()));
+            return settle(write).then(function (result) { syncMode = "cloud"; syncMessage = "Connected to Firebase. Shared data is syncing."; return result; }).catch(function (error) { reportFirebaseError("database write", error); throw error; });
           } catch (e) { return Promise.reject(e); }
         }
         return Promise.resolve();
@@ -924,6 +1030,60 @@
             return function () { var idx = subs.indexOf(s); if (idx >= 0) subs.splice(idx, 1); };
           }
         };
+      }
+
+      function refreshFirebaseData() {
+        if (!isFirebaseActive || !fbDb) {
+          return window.FIREBASE_CONFIG ? Promise.reject(new Error("firebase-unavailable")) : Promise.resolve();
+        }
+        var paths = ["couple/profile", "couple/claims", "events", "memories"];
+        return Promise.all(paths.map(function (path) {
+          return withTimeout(fbDb.ref(path).once("value"), 15000);
+        })).then(function (snapshots) {
+          return snapshots;
+        }).catch(function (error) {
+          reportFirebaseError("refresh", error);
+          throw error;
+        });
+      }
+
+      function updateMemoryBooth(eventId, updater) {
+        var path = "memories/booths/" + eventId;
+        if (isFirebaseActive && fbDb) {
+          return withTimeout(fbDb.ref(path).transaction(function (current) {
+            return updater(current || null);
+          }, undefined, false), 15000).then(function (result) {
+            if (!result.committed) throw new Error("Booth update was not committed.");
+            return result.snapshot.val();
+          });
+        }
+        var next = updater(store[path] || null);
+        if (next === null) delete store[path]; else store[path] = next;
+        var saved = mutateSync(next === null ? "delete" : "set", path, next);
+        notify();
+        return saved.then(function () { return next; });
+      }
+
+      function saveMemoryPhoto(imageData, createdBy) {
+        var record = { imageData: imageData, createdBy: createdBy || null, createdAt: Date.now() };
+        if (isFirebaseActive && fbDb) {
+          var photoRef = fbDb.ref("memories/photos").push();
+          return photoRef.set(record).then(function () {
+            var id = photoRef.key;
+            store["memories/photos/" + id] = record;
+            saveLocalStore(store);
+            syncMode = "cloud";
+            syncMessage = "Connected to Firebase. Shared data is syncing.";
+            notify();
+            return { id: id };
+          }).catch(function (err) {
+            err.memoryStage = "Realtime Database photo save";
+            reportFirebaseError(err.memoryStage, err);
+            throw err;
+          });
+        }
+        if (window.FIREBASE_CONFIG) return Promise.reject(new Error("firebase-unavailable"));
+        return colRef("memories/photos").add(record);
       }
 
       function colRef(c) {
@@ -1016,10 +1176,14 @@
         USER_B: USER_B,
         isClaimed: function () { return !!myUserId; },
         getClaims: claims,
+        getSyncStatus: function () { return { mode: syncMode, message: syncMessage }; },
         getStatus: function () { return claimsStatus; },
         onClaims: function (fn) { claimSubs.push(fn); },
         onSyncError: function (fn) { errSubs.push(fn); },
         ready: function () { return readyPromise.then(reconcile); },
+        updateMemoryBooth: updateMemoryBooth,
+        saveMemoryPhoto: saveMemoryPhoto,
+        refresh: refreshFirebaseData,
         claimDevice: function (userId) {
           if (userId !== USER_A && userId !== USER_B) return Promise.reject(new Error("invalid"));
           if (myUserId && myUserId !== userId) return Promise.reject(new Error("locked"));
@@ -1056,7 +1220,8 @@
       var state = {
         tab: "home", year: 0, month: 0, selected: today(),
         events: [], profile: { a: { name: "Reejan", img: "" }, b: { name: "Shreya", img: "" } }, profileExists: false,
-        myId: null, evCol: null, profRef: null,
+        myId: null, evCol: null, profRef: null, memPhotoCol: null, memBoothCol: null,
+        memoryPhotos: [], memoryBooths: {}, memoryMode: "dates", memoryEventId: null, memoryDraft: null, memorySelectedPhotoIds: [], memorySelectedBoothPhotoId: null,
         editingId: null, detailId: null, saving: false, draft: null
       };
       (function () { var n = new Date(); state.year = n.getFullYear(); state.month = n.getMonth(); })();
@@ -1152,6 +1317,12 @@
         } else { s.innerHTML = ICON.user; }
         return s;
       }
+
+      function showSyncIndicator(message) {
+        $("syncIndicatorText").textContent = message || "Syncing…";
+        $("syncIndicator").hidden = false;
+      }
+      function hideSyncIndicator() { $("syncIndicator").hidden = true; }
 
       var toastTimer = null;
       function toast(msg) {
@@ -1360,6 +1531,333 @@
         buildTimeline($("dayList"), [{ date: state.selected, events: evs }], "Nothing scheduled for this day. Tap + to plan something!");
       }
 
+      function htmlSafe(value) {
+        return String(value == null ? "" : value).replace(/[&<>"']/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]; });
+      }
+      function memoryEvent(eventId) { return state.events.find(function (e) { return e.id === eventId; }); }
+      function boothPhotoIds(booth) { return Array.isArray(booth && booth.photoIds) ? booth.photoIds.slice(0, 4) : []; }
+      function memoryPhotoUrl(photo) { return photo && (photo.imageUrl || photo.imageData) || ""; }
+      function boothPhotoUrl(booth, id) {
+        var photo = state.memoryPhotos.find(function (p) { return p.id === id; });
+        return memoryPhotoUrl(photo) || (booth && booth.photoSnapshots && booth.photoSnapshots[id]) || "";
+      }
+      function boothIsFinal(booth) {
+        var count = boothPhotoIds(booth).length;
+        return count >= 3 && count <= 4;
+      }
+      function boothStageHeight(ids, availableWidth) {
+        var stageWidth = Math.min(560, Math.max(280, availableWidth || window.innerWidth - 48));
+        var stripWidth = stageWidth <= 380 ? .32 : .30;
+        var frameHeight = (stageWidth * stripWidth - (stageWidth <= 380 ? 12 : 18)) * .75;
+        return Math.max(360, Math.ceil(95 + ids.length * (frameHeight + 6)));
+      }
+      function renderBoothMainCard(ids, booth, event, note, editable) {
+        var heroUrl = ids[0] ? boothPhotoUrl(booth, ids[0]) : "";
+        var html = '<div class="booth-memory-card"><div class="booth-card-layout"><div class="booth-collage">';
+        html += heroUrl ? '<img class="booth-collage-hero" src="' + htmlSafe(heroUrl) + '" alt="Main keepsake photo">' : '<div class="booth-empty-slot booth-collage-hero">Your photo</div>';
+        html += '<div class="booth-collage-thumbs">';
+        for (var i = 1; i <= 3; i++) {
+          var thumbUrl = ids[i] ? boothPhotoUrl(booth, ids[i]) : "";
+          html += thumbUrl ? '<img src="' + htmlSafe(thumbUrl) + '" alt="Keepsake photo ' + (i + 1) + '">' : '<span class="booth-empty-thumb" aria-hidden="true"></span>';
+        }
+        html += '</div></div><div class="booth-card-note"' + (editable ? ' contenteditable="true" role="textbox" aria-multiline="true" aria-label="Write a note for this photo booth" data-placeholder="Write a little note to remember this day…"' : '') + '>' + (editable ? htmlSafe(note || "") : htmlSafe(note || 'A little day to remember.')) + '</div></div><div class="booth-card-footer"><span class="booth-card-title">' + htmlSafe(event.title) + '</span><span class="booth-card-date">' + htmlSafe(longDate(event.date)) + '</span></div></div>';
+        return html;
+      }
+      function renderBoothPreview(event, booth) {
+        var ids = boothPhotoIds(booth), height = boothStageHeight(ids, Math.min(560, window.innerWidth * .94));
+        var html = '<button type="button" class="mem-booth-preview" data-mem="booth" data-event="' + htmlSafe(event.id) + '" aria-label="Edit photo booth for ' + htmlSafe(event.title) + '"><div class="booth-stage" style="height:' + height + 'px">' + renderBoothMainCard(ids, booth, event, booth.note, false) + '<div class="booth-strip"><div class="booth-strip-photos">';
+        ids.forEach(function (id, index) {
+          var photoUrl = boothPhotoUrl(booth, id);
+          if (photoUrl) html += '<div class="booth-strip-item"><img class="booth-strip-photo" src="' + htmlSafe(photoUrl) + '" alt="Photo booth frame ' + (index + 1) + '"></div>';
+        });
+        return html + '</div><div class="booth-strip-footer"><span>' + htmlSafe(event.title) + '</span><span>' + htmlSafe(longDate(event.date)) + '</span></div></div></div></button>';
+      }
+      function beginBooth(eventId, selectedPhotoIds) {
+        var saved = state.memoryBooths[eventId] || { eventId: eventId, photoIds: [], note: "", revision: 0, approvals: {} };
+        var ids = boothPhotoIds(saved).slice();
+        (selectedPhotoIds || []).forEach(function (id) { if (ids.indexOf(id) < 0) ids.push(id); });
+        if (ids.length > 4) { toast("This booth can hold up to 4 photos. Remove a photo first."); return false; }
+        state.memoryEventId = eventId;
+        state.memoryDraft = { photoIds: ids, note: saved.note || "" };
+        state.memorySelectedPhotoIds = [];
+        state.memoryMode = "booth"; renderMemories(); return true;
+      }
+      function saveBoothDraft() {
+        var eventId = state.memoryEventId, draft = state.memoryDraft;
+        if (!eventId || !draft) return Promise.resolve();
+        if (draft.photoIds.length < 3 || draft.photoIds.length > 4) { toast("Choose 3 or 4 photos for your booth."); return Promise.resolve(); }
+        var isNewBooth = !state.memoryBooths[eventId];
+        return window.coupleApp.updateMemoryBooth(eventId, function (current) {
+          current = current || { eventId: eventId, photoIds: [], note: "", revision: 0, approvals: {} };
+          var snapshots = Object.assign({}, current.photoSnapshots || {});
+          draft.photoIds.forEach(function (id) { var photo = state.memoryPhotos.find(function (p) { return p.id === id; }); if (photo && memoryPhotoUrl(photo)) snapshots[id] = memoryPhotoUrl(photo); });
+          var changed = JSON.stringify(Array.isArray(current.photoIds) ? current.photoIds : []) !== JSON.stringify(draft.photoIds) || (current.note || "") !== draft.note;
+          if (!changed && JSON.stringify(snapshots) === JSON.stringify(current.photoSnapshots || {})) return current;
+          return { eventId: eventId, photoIds: draft.photoIds.slice(), photoSnapshots: snapshots, note: draft.note.slice(0, 500), revision: (Number(current.revision) || 0) + (changed ? 1 : 0), approvals: changed ? {} : (current.approvals || {}), updatedBy: state.myId || null, updatedAt: Date.now() };
+        }).then(function (saved) {
+          state.memoryBooths[eventId] = saved;
+          state.memoryDraft = { photoIds: boothPhotoIds(saved).slice(), note: saved.note || "" };
+          toast(isNewBooth ? "Your photo booth is created and saved 💕" : "Photo booth saved 💕"); renderMemories(); return saved;
+        }).catch(function () { toast("Could not save the booth. Check your connection and try again."); });
+      }
+      var boothDragClickUntil = 0;
+      function reorderBoothPhoto(from, to) {
+        var ids = state.memoryDraft && state.memoryDraft.photoIds;
+        if (!ids || from < 0 || to < 0 || from >= ids.length || to >= ids.length || from === to) return;
+        var moved = ids.splice(from, 1)[0]; ids.splice(to, 0, moved);
+        renderMemories();
+      }
+      function wireBoothPhotoDrag(root) {
+        var strip = root.querySelector(".booth-strip-photos"); if (!strip) return;
+        var nativeFrom = -1, pointer = null;
+        strip.addEventListener("dragstart", function (event) {
+          var item = event.target.closest(".booth-strip-item"); if (!item) return;
+          nativeFrom = Number(item.getAttribute("data-booth-index")); item.classList.add("is-dragging");
+          if (event.dataTransfer) { event.dataTransfer.effectAllowed = "move"; event.dataTransfer.setData("text/plain", String(nativeFrom)); }
+        });
+        strip.addEventListener("dragover", function (event) { if (event.target.closest(".booth-strip-item")) event.preventDefault(); });
+        strip.addEventListener("drop", function (event) {
+          var item = event.target.closest(".booth-strip-item"); if (!item) return;
+          event.preventDefault(); reorderBoothPhoto(nativeFrom, Number(item.getAttribute("data-booth-index"))); nativeFrom = -1;
+        });
+        strip.addEventListener("dragend", function () { nativeFrom = -1; strip.querySelectorAll(".is-dragging").forEach(function (item) { item.classList.remove("is-dragging"); }); });
+        strip.addEventListener("pointerdown", function (event) {
+          var item = event.target.closest(".booth-strip-item");
+          if (!item || event.target.closest("button.booth-photo-delete")) return;
+          var index = Number(item.getAttribute("data-booth-index"));
+          pointer = { id: event.pointerId, from: index, to: index, x: event.clientX, y: event.clientY, dragging: false };
+        });
+        strip.addEventListener("pointermove", function (event) {
+          if (!pointer || pointer.id !== event.pointerId) return;
+          if (!pointer.dragging && Math.hypot(event.clientX - pointer.x, event.clientY - pointer.y) > 10) {
+            pointer.dragging = true;
+            var origin = strip.querySelector('[data-booth-index="' + pointer.from + '"]'); if (origin) origin.classList.add("is-dragging");
+          }
+          if (!pointer.dragging) return;
+          event.preventDefault();
+          strip.querySelectorAll(".is-drop-target").forEach(function (item) { item.classList.remove("is-drop-target"); });
+          var target = document.elementFromPoint(event.clientX, event.clientY), item = target && target.closest(".booth-strip-item");
+          if (item && strip.contains(item)) { pointer.to = Number(item.getAttribute("data-booth-index")); item.classList.add("is-drop-target"); }
+        });
+        function finishPointer(event) {
+          if (!pointer || pointer.id !== event.pointerId) return;
+          var active = pointer; pointer = null;
+          strip.querySelectorAll(".is-dragging,.is-drop-target").forEach(function (item) { item.classList.remove("is-dragging", "is-drop-target"); });
+          if (active.dragging) { boothDragClickUntil = Date.now() + 400; reorderBoothPhoto(active.from, active.to); }
+        }
+        strip.addEventListener("pointerup", finishPointer);
+        strip.addEventListener("pointercancel", finishPointer);
+      }
+      function renderMemories() {
+        var root = $("memoriesContent"); if (!root) return;
+        var pastDateEvents = state.events.filter(function (e) { return e.status === "accepted" && e.date < today(); }).sort(function (a, b) { return b.date.localeCompare(a.date); });
+        var boothEvents = state.events.filter(function (e) { return e.status === "accepted" && boothPhotoIds(state.memoryBooths[e.id]).length > 0; }).sort(function (a, b) { return b.date.localeCompare(a.date); });
+        var acceptedDates = state.events.filter(function (e) { return e.status === "accepted"; }).sort(function (a, b) { return a.date.localeCompare(b.date); });
+        if (state.memoryMode === "dates") {
+          $("memSubtitle").textContent = "Past dates are ready for more memories. Swipe through your photo booths.";
+          var out = '';
+          if (pastDateEvents.length) {
+            out += '<h3 class="mem-section-title">Past dates · add photos</h3>';
+            pastDateEvents.forEach(function (ev) {
+              out += '<article class="mem-card"><div class="mem-past-date"><div><h3>' + htmlSafe(ev.title) + '</h3><p class="mem-hint">' + htmlSafe(longDate(ev.date)) + '</p></div><button class="mem-button primary" data-mem="booth" data-event="' + htmlSafe(ev.id) + '">Add photos</button></div></article>';
+            });
+          }
+          out += '<div class="mem-card"><div class="mem-date"><div><h3>Your shared photo pile</h3><p>' + state.memoryPhotos.length + ' little moments saved so far</p></div><button class="mem-button" data-mem="pile">Open pile</button></div></div>';
+          if (boothEvents.length) {
+            out += '<h3 class="mem-section-title">Your photo booths</h3><div class="mem-booths-scroll">';
+            boothEvents.forEach(function (ev) { out += renderBoothPreview(ev, state.memoryBooths[ev.id]); });
+            out += '</div>';
+          }
+          if (!pastDateEvents.length && !boothEvents.length) out += '<div class="mem-card mem-empty">Your accepted dates will show up here after they happen. ✨</div>';
+          root.innerHTML = out; return;
+        }
+        if (state.memoryMode === "pile") {
+          $("memSubtitle").textContent = "A shared, happily messy pile of photos from your days together.";
+          var hasBoothDraft = !!(state.memoryEventId && state.memoryDraft);
+          var pile = '<div class="mem-actions"><button class="mem-button" data-mem="' + (hasBoothDraft ? 'booth-return' : 'back') + '">← ' + (hasBoothDraft ? 'Photo booth' : 'Dates') + '</button><button class="mem-button primary" type="button" data-mem="choose-pile-photos">Add photos</button>';
+          if (hasBoothDraft) pile += '<button class="mem-button" data-mem="add-selected">Add selected to booth (' + state.memorySelectedPhotoIds.length + ')</button>';
+          else pile += '<button class="mem-button" data-mem="create-booth" ' + (state.memorySelectedPhotoIds.length < 3 ? 'disabled' : '') + '>Create photo booth</button>';
+          pile += '</div>';
+          if (!state.memoryPhotos.length) pile += '<div class="mem-card mem-empty">Your photo pile is waiting for its first little moment. 📷</div>';
+          else {
+            var pileWidth = Math.max(200, root.clientWidth - 36), columns = Math.max(2, Math.floor((pileWidth + 12) / 112));
+            var rowsVisible = Math.max(1, Math.floor((window.innerHeight * .6 - 32 + 12) / 128));
+            var crowded = state.memoryPhotos.length > columns * rowsVisible;
+            pile += '<div class="mem-pile' + (crowded ? ' is-crowded' : '') + '">';
+            state.memoryPhotos.forEach(function (photo, i) {
+              var selected = state.memorySelectedPhotoIds.indexOf(photo.id) >= 0;
+              pile += '<div class="pile-item' + (selected ? ' is-selected' : '') + '" style="--tilt:' + ((i % 5) - 2) * 2 + 'deg;z-index:' + (i + 1) + '"><button type="button" class="pile-photo' + (selected ? ' is-selected' : '') + '" data-mem="toggle-photo" data-photo-id="' + htmlSafe(photo.id) + '" aria-pressed="' + (selected ? 'true' : 'false') + '" aria-label="' + (selected ? 'Deselect' : 'Select') + ' photo ' + (i + 1) + '"><img src="' + htmlSafe(memoryPhotoUrl(photo)) + '" alt="A shared memory photo"></button><button type="button" class="pile-delete"' + (selected ? '' : ' hidden') + ' data-mem="delete-photo" data-photo-id="' + htmlSafe(photo.id) + '" aria-label="Delete photo ' + (i + 1) + '" title="Delete photo">×</button></div>';
+            });
+            pile += '</div><p class="mem-hint">Select 3–4 photos to make your photo booth · ' + state.memorySelectedPhotoIds.length + ' selected</p>';
+          }
+          root.innerHTML = pile;
+          return;
+        }
+        if (state.memoryMode === "choose-date") {
+          $("memSubtitle").textContent = "Choose the date to create your photo booth for.";
+          var chooseDate = '<div class="mem-actions"><button class="mem-button" data-mem="pile">← Photo pile</button></div>';
+          if (!acceptedDates.length) chooseDate += '<div class="mem-card mem-empty">Accept a date first, then you can save a photo booth for it. ✨</div>';
+          acceptedDates.forEach(function (ev) {
+            var saved = state.memoryBooths[ev.id], count = boothPhotoIds(saved).length;
+            chooseDate += '<article class="mem-card"><div class="mem-date"><div><h3>' + htmlSafe(ev.title) + '</h3><p>' + htmlSafe(longDate(ev.date)) + (count ? ' · ' + count + ' photos already' : '') + '</p></div><button class="mem-button primary" data-mem="select-event" data-event="' + htmlSafe(ev.id) + '">Create booth for this date</button></div></article>';
+          });
+          root.innerHTML = chooseDate; return;
+        }
+        var ev = memoryEvent(state.memoryEventId);
+        if (!ev) { state.memoryMode = "dates"; renderMemories(); return; }
+        var savedBooth = state.memoryBooths[ev.id] || { revision: 0, approvals: {} };
+        var draft = state.memoryDraft || { photoIds: boothPhotoIds(savedBooth).slice(), note: savedBooth.note || "" };
+        var ids = draft.photoIds;
+        $("memSubtitle").textContent = htmlSafe(ev.title) + ' · ' + longDate(ev.date);
+        var editor = '<div class="mem-actions"><button class="mem-button" data-mem="back">← Dates</button><button class="mem-button" data-mem="pile">Open photo pile</button></div>';
+        editor += '<p class="mem-hint">Drag the frames to rearrange your photo booth.</p>';
+        var stageHeight = boothStageHeight(ids, root.clientWidth);
+        editor += '<div class="booth-stage" style="height:' + stageHeight + 'px">' + renderBoothMainCard(ids, savedBooth, ev, draft.note, true) + '<div class="booth-strip"><div class="booth-strip-photos">';
+        ids.forEach(function (id, index) {
+          var photoUrl = boothPhotoUrl(savedBooth, id);
+          if (photoUrl) editor += '<div class="booth-strip-item' + (state.memorySelectedBoothPhotoId === id ? ' is-selected' : '') + '" data-booth-index="' + index + '" draggable="true"><button type="button" class="booth-photo-pick" data-mem="booth-select-photo" data-photo-id="' + htmlSafe(id) + '" aria-label="Select photo ' + (index + 1) + '"><img class="booth-strip-photo" src="' + htmlSafe(photoUrl) + '" alt="Photo booth frame ' + (index + 1) + '"></button><button type="button" class="booth-photo-delete"' + (state.memorySelectedBoothPhotoId === id ? '' : ' hidden') + ' data-mem="remove" data-index="' + index + '" aria-label="Remove photo ' + (index + 1) + ' from booth">×</button></div>';
+        });
+        editor += '</div><div class="booth-strip-footer"><span>' + htmlSafe(ev.title) + '</span><span>' + htmlSafe(longDate(ev.date)) + '</span></div></div></div>';
+        editor += '<div class="mem-actions"><button class="mem-button" type="button" data-mem="choose-booth-photos">Add a photo</button><button class="mem-button primary" data-mem="save">Save booth</button></div>';
+        if (ids.length < 3 || ids.length > 4) editor += '<p class="mem-hint">Pick ' + Math.max(0, 3 - ids.length) + ' more photo' + (3 - ids.length === 1 ? '' : 's') + ' to make your booth.</p>';
+        editor += '<div class="mem-card"><strong>' + (ids.length >= 3 && ids.length <= 4 ? 'Your photo booth is ready ✨' : 'Finish your photo booth') + '</strong><p class="mem-hint">Your booth is saved and available from the Memories list.</p>';
+        editor += '<div class="mem-actions">' + (ids.length >= 3 && ids.length <= 4 ? '<button class="mem-button primary" data-mem="export">Export photo booth</button>' : '<button class="mem-button" disabled>Choose 3 or 4 photos to finish</button>') + '</div></div>';
+        root.innerHTML = editor;
+        var noteInput = root.querySelector('.booth-card-note[contenteditable="true"]');
+        noteInput.addEventListener("input", function () {
+          if (!state.memoryDraft) return;
+          var value = (noteInput.innerText || "").replace(/\n+$/, "").slice(0, 500);
+          if (value !== noteInput.innerText.replace(/\n+$/, "")) noteInput.textContent = value;
+          state.memoryDraft.note = value;
+        });
+        wireBoothPhotoDrag(root);
+      }
+
+      function compressedMemoryImage(file, onReady, onError) {
+        readProfilePhoto(file, function (data) {
+          var img = new Image();
+          img.onload = function () {
+            try {
+              var scale = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight));
+              var canvas = document.createElement("canvas");
+              canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+              canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+              canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+              onReady(canvas.toDataURL("image/jpeg", 0.85));
+            } catch (e) { onError("Could not prepare that photo. Try another image."); }
+          };
+          img.onerror = function () { onError("Could not read that photo."); };
+          img.src = data;
+        }, onError);
+      }
+      function wireMemoryUpload(input, addToBooth) {
+        if (!input) return;
+        input.addEventListener("change", function () {
+          var files = input.files;
+          if (files && files.length) uploadMemoryFiles(files, addToBooth);
+          input.value = "";
+        });
+      }
+      function uploadMemoryFiles(files, addToBooth) {
+        var selected = Array.prototype.slice.call(files || []);
+        var list = selected.filter(function (f) { return /^image\//i.test(f.type) || /\.(heic|heif)$/i.test(f.name || ""); });
+        if (!list.length) { if (selected.length) toast("Choose a JPG, PNG, HEIC, or HEIF photo."); return; }
+        if (addToBooth && state.memoryDraft && state.memoryDraft.photoIds.length + list.length > 4) { toast("A booth can hold up to 4 photos."); return; }
+        var index = 0, uploaded = 0;
+        showSyncIndicator("Preparing photos…");
+        function next() {
+          if (index >= list.length) {
+            hideSyncIndicator();
+            if (uploaded) { toast(uploaded === 1 ? "Photo added to your shared pile 📷" : uploaded + " photos added to your shared pile 📷"); renderMemories(); }
+            return;
+          }
+          var file = list[index++];
+          showSyncIndicator("Preparing photo " + index + " of " + list.length + "…");
+          compressedMemoryImage(file, function (imageData) {
+            showSyncIndicator("Saving photo " + index + " of " + list.length + "…");
+            window.coupleApp.saveMemoryPhoto(imageData, state.myId).then(function (result) {
+              uploaded++;
+              if (addToBooth && state.memoryDraft && state.memoryDraft.photoIds.length < 4) state.memoryDraft.photoIds.push(result.id);
+              next();
+            }).catch(function (err) {
+              hideSyncIndicator();
+              console.error("Memory photo upload failed:", err);
+              var code = err && err.code || "", stage = err && err.memoryStage || "Photo upload";
+              var detail = (err && (err.serverResponse || err.message)) || code;
+              if (err && err.message === "firebase-unavailable") toast("Firebase did not connect, so this photo was not saved to the cloud.");
+              else if (code === "PERMISSION_DENIED" || code === "database/permission-denied") toast("Realtime Database blocked the photo save. Check write access under /memories.");
+              else toast(stage + " failed" + (code ? " (" + code + ")" : (detail ? ": " + detail : ". Check Firebase settings.")));
+            });
+          }, function (message) { hideSyncIndicator(); toast(message); next(); });
+        }
+        next();
+      }
+      function removeMemoryPhotoFromPile(photoId, askFirst) {
+        var photo = state.memoryPhotos.find(function (p) { return p.id === photoId; });
+        if (!photo || (askFirst && !window.confirm("Delete this photo from your shared pile? This also removes it from Firebase."))) return Promise.resolve(false);
+        showSyncIndicator("Removing photo…");
+        var backups = Object.keys(state.memoryBooths).filter(function (id) { return boothPhotoIds(state.memoryBooths[id]).indexOf(photoId) >= 0; });
+        return backups.reduce(function (chain, eventId) {
+          return chain.then(function () {
+            return window.coupleApp.updateMemoryBooth(eventId, function (booth) {
+              if (!booth || !boothPhotoIds(booth).includes(photoId)) return booth;
+              booth.photoSnapshots = Object.assign({}, booth.photoSnapshots || {});
+              if (!booth.photoSnapshots[photoId]) booth.photoSnapshots[photoId] = memoryPhotoUrl(photo);
+              return booth;
+            }).then(function (saved) { state.memoryBooths[eventId] = saved; });
+          });
+        }, Promise.resolve()).then(function () {
+          return state.memPhotoCol.doc(photoId).delete();
+        }).then(function () {
+          state.memoryPhotos = state.memoryPhotos.filter(function (p) { return p.id !== photoId; });
+          state.memorySelectedPhotoIds = state.memorySelectedPhotoIds.filter(function (id) { return id !== photoId; });
+          hideSyncIndicator(); if (askFirst) toast("Photo removed from your shared pile."); renderMemories(); return true;
+        }).catch(function (error) {
+          hideSyncIndicator(); console.error("Memory photo delete failed:", error);
+          toast("Could not delete the photo. Check Firebase write access and try again.");
+          return false;
+        });
+      }
+      function deleteMemoryPhoto(photoId) { return removeMemoryPhotoFromPile(photoId, true); }
+      function exportBooth() {
+        var event = memoryEvent(state.memoryEventId), booth = state.memoryBooths[state.memoryEventId];
+        if (!event || !boothIsFinal(booth)) { toast("Choose 3 or 4 photos for your booth first."); return; }
+        var photos = boothPhotoIds(booth).map(function (id) { return boothPhotoUrl(booth, id); }).filter(Boolean);
+        var canvas = document.createElement("canvas"), width = 900, pad = 54, gap = 20, top = 104, noteH = 170;
+        var columns = 1, rows = photos.length;
+        var photoW = width - pad * 2, photoH = photoW * .75;
+        canvas.width = width; canvas.height = top + rows * photoH + (rows - 1) * gap + noteH;
+        var ctx = canvas.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, width, canvas.height);
+        ctx.fillStyle = "#49383e"; ctx.textAlign = "center"; ctx.font = "bold 27px Georgia,serif"; ctx.fillText(event.title, width / 2, 58, width - 80);
+        function drawPhoto(i) {
+          if (i >= photos.length) {
+            var noteY = top + rows * photoH + (rows - 1) * gap + 44;
+            ctx.strokeStyle = "#eadfe2"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(pad, noteY - 26); ctx.lineTo(width - pad, noteY - 26); ctx.stroke();
+            ctx.fillStyle = "#5a454d"; ctx.textAlign = "center"; ctx.font = "italic 27px Georgia,serif";
+            var words = (booth.note || "A little day to keep forever.").split(/\s+/), line = "", lines = [], maxWidth = width - pad * 2;
+            words.forEach(function (word) { var test = line ? line + " " + word : word; if (ctx.measureText(test).width > maxWidth && line) { lines.push(line); line = word; } else line = test; }); if (line) lines.push(line);
+            lines.slice(0, 3).forEach(function (t, j) { ctx.fillText(t, width / 2, noteY + j * 38); });
+            canvas.toBlob(function (blob) {
+              if (!blob) { toast("Could not create the booth image."); return; }
+              var file = new File([blob], "our-photo-booth.png", { type: "image/png" });
+              if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) navigator.share({ files: [file], title: event.title + " photo booth" }).catch(function () {});
+              else { var link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "our-photo-booth.png"; link.click(); setTimeout(function () { URL.revokeObjectURL(link.href); }, 1000); }
+            }, "image/png");
+            return;
+          }
+          var image = new Image(); image.onload = function () {
+            var x = pad, y = top + i * (photoH + gap), targetRatio = photoW / photoH, sourceRatio = image.naturalWidth / image.naturalHeight;
+            var sx = 0, sy = 0, sw = image.naturalWidth, sh = image.naturalHeight;
+            if (sourceRatio > targetRatio) { sw = image.naturalHeight * targetRatio; sx = (image.naturalWidth - sw) / 2; }
+            else { sh = image.naturalWidth / targetRatio; sy = (image.naturalHeight - sh) / 2; }
+            ctx.fillStyle = "#fff"; ctx.fillRect(x - 9, y - 9, photoW + 18, photoH + 18);
+            ctx.drawImage(image, sx, sy, sw, sh, x, y, photoW, photoH); drawPhoto(i + 1);
+          };
+          image.onerror = function () { toast("Could not load a photo for export. Try refreshing your memories."); drawPhoto(i + 1); }; image.src = photos[i];
+        }
+        drawPhoto(0);
+      }
+
       function render() {
         renderGreeting();
         renderCountdown();
@@ -1367,6 +1865,7 @@
         renderUpcoming();
         renderCalendar();
         renderDayList();
+        if (state.tab === "mem") renderMemories();
         if (state.detailId) renderDetail();
         if (!$("sheetSetup").hidden) renderSetup();
       }
@@ -1375,10 +1874,13 @@
         state.tab = name;
         $("viewHome").hidden = name !== "home";
         $("viewCal").hidden = name !== "cal";
+        $("viewMemories").hidden = name !== "mem";
         $("addWrap").hidden = (name !== "cal");
         $("tabHome").setAttribute("aria-current", name === "home" ? "page" : "false");
         $("tabCal").setAttribute("aria-current", name === "cal" ? "page" : "false");
-        $("barTitle").textContent = name === "home" ? "Couple Calendar" : "Calendar";
+        $("tabMem").setAttribute("aria-current", name === "mem" ? "page" : "false");
+        $("barTitle").textContent = name === "home" ? "Couple Calendar" : (name === "mem" ? "Memories" : "Calendar");
+        if (name === "mem") renderMemories();
         window.scrollTo(0, 0);
       }
 
@@ -1745,7 +2247,7 @@
         });
       });
       window.coupleApp.onClaims(function () { if (!$("sheetSetup").hidden) renderSetup(); });
-      window.coupleApp.onSyncError(function (m) { toast(m); });
+      window.coupleApp.onSyncError(function (m) { toast(m); if (state.tab === "mem") renderMemories(); });
 
       /* Wiring */
       document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest("[data-close]")) closeSheets(); });
@@ -1757,9 +2259,101 @@
       $("personB").addEventListener("click", openProfile);
       $("pfSave").addEventListener("click", saveProfile);
 
+      wireMemoryUpload($("memoryUpload"), false);
+      wireMemoryUpload($("boothAddPhoto"), true);
+      var pullStartY = null, pullDistance = 0, refreshRunning = false;
+      var memoriesView = $("viewMemories");
+      function refreshMemories() {
+        if (refreshRunning) return;
+        refreshRunning = true;
+        showSyncIndicator("Refreshing shared memories…");
+        window.coupleApp.refresh().then(function () {
+          hideSyncIndicator();
+          if (window.coupleApp.getSyncStatus().mode === "local") toast("Memories refreshed on this device.");
+        }).catch(function (error) {
+          hideSyncIndicator();
+          toast(error && error.message === "firebase-unavailable" ? "Could not refresh. Firebase is offline." : "Could not refresh shared memories. Check your connection.");
+        }).finally(function () { refreshRunning = false; });
+      }
+      memoriesView.addEventListener("touchstart", function (event) {
+        if (state.tab !== "mem" || refreshRunning || window.scrollY > 0) return;
+        pullStartY = event.touches[0].clientY;
+        pullDistance = 0;
+      }, { passive: true });
+      memoriesView.addEventListener("touchmove", function (event) {
+        if (pullStartY === null || state.tab !== "mem") return;
+        pullDistance = Math.max(0, event.touches[0].clientY - pullStartY);
+        if (pullDistance < 12) return;
+        event.preventDefault();
+        showSyncIndicator(pullDistance >= 64 ? "Release to refresh…" : "Pull to refresh…");
+      }, { passive: false });
+      memoriesView.addEventListener("touchend", function () {
+        if (pullStartY === null) return;
+        var shouldRefresh = pullDistance >= 64;
+        pullStartY = null; pullDistance = 0;
+        if (shouldRefresh) refreshMemories(); else hideSyncIndicator();
+      }, { passive: true });
+      memoriesView.addEventListener("touchcancel", function () { pullStartY = null; pullDistance = 0; hideSyncIndicator(); }, { passive: true });
+
       $("tabHome").addEventListener("click", function () { setTab("home"); });
       $("tabCal").addEventListener("click", function () { setTab("cal"); });
+      $("tabMem").addEventListener("click", function () { setTab("mem"); });
       $("seeCal").addEventListener("click", function () { setTab("cal"); });
+      $("memoriesContent").addEventListener("click", function (event) {
+        var button = event.target.closest("[data-mem]"); if (!button) return;
+        var action = button.getAttribute("data-mem"), eventId = button.getAttribute("data-event");
+        if (action === "booth-select-photo" && Date.now() < boothDragClickUntil) return;
+        if (action === "pile") { state.memorySelectedPhotoIds = []; state.memoryMode = "pile"; renderMemories(); }
+        else if (action === "back") { state.memoryMode = "dates"; state.memoryEventId = null; state.memoryDraft = null; state.memorySelectedPhotoIds = []; renderMemories(); }
+        else if (action === "booth-return") { state.memoryMode = "booth"; renderMemories(); }
+        else if (action === "choose-pile-photos") $("memoryUpload").click();
+        else if (action === "choose-booth-photos") $("boothAddPhoto").click();
+        else if (action === "toggle-photo") {
+          var photoId = button.getAttribute("data-photo-id"), selectedAt = state.memorySelectedPhotoIds.indexOf(photoId);
+          if (selectedAt >= 0) state.memorySelectedPhotoIds.splice(selectedAt, 1);
+          else if ((state.memoryDraft && state.memoryDraft.photoIds.indexOf(photoId) >= 0) || (state.memoryDraft ? state.memoryDraft.photoIds.length : 0) + state.memorySelectedPhotoIds.filter(function (id) { return !state.memoryDraft || state.memoryDraft.photoIds.indexOf(id) < 0; }).length < 4) state.memorySelectedPhotoIds.push(photoId);
+          else { toast("A booth can hold up to 4 photos. Remove one in the booth first."); return; }
+          renderMemories();
+        }
+        else if (action === "booth-select-photo") {
+          var boothPhotoId = button.getAttribute("data-photo-id");
+          state.memorySelectedBoothPhotoId = state.memorySelectedBoothPhotoId === boothPhotoId ? null : boothPhotoId;
+          renderMemories();
+        }
+        else if (action === "add-selected") {
+          var selectedIds = state.memoryDraft.photoIds.slice();
+          state.memorySelectedPhotoIds.forEach(function (id) { if (selectedIds.indexOf(id) < 0) selectedIds.push(id); });
+          if (selectedIds.length > 4) { toast("A booth can hold up to 4 photos."); return; }
+          state.memoryDraft.photoIds = selectedIds; state.memorySelectedPhotoIds = []; state.memoryMode = "booth"; renderMemories();
+        }
+        else if (action === "create-booth") {
+          if (state.memorySelectedPhotoIds.length < 3 || state.memorySelectedPhotoIds.length > 4) { toast("Select 3 or 4 photos first."); return; }
+          state.memoryMode = "choose-date"; renderMemories();
+        }
+        else if (action === "select-event") {
+          var photoIdsToMove = state.memorySelectedPhotoIds.slice();
+          if (beginBooth(eventId, photoIdsToMove)) saveBoothDraft().then(function (saved) {
+            if (!saved || !boothIsFinal(saved)) return false;
+            return photoIdsToMove.reduce(function (chain, photoId) {
+              return chain.then(function (ok) { return ok ? removeMemoryPhotoFromPile(photoId, false) : false; });
+            }, Promise.resolve(true));
+          }).then(function (removed) { if (removed) toast("Your booth is saved, and its photos are out of the pile ✨"); });
+        }
+        else if (action === "delete-photo") {
+          deleteMemoryPhoto(button.getAttribute("data-photo-id"));
+        }
+        else if (action === "booth") beginBooth(eventId);
+        else if (action === "move" || action === "remove") {
+          var at = Number(button.getAttribute("data-index"));
+          if (action === "remove") { state.memoryDraft.photoIds.splice(at, 1); state.memorySelectedBoothPhotoId = null; }
+          else { var to = at + Number(button.getAttribute("data-dir")); if (to >= 0 && to < state.memoryDraft.photoIds.length) { var swap = state.memoryDraft.photoIds[at]; state.memoryDraft.photoIds[at] = state.memoryDraft.photoIds[to]; state.memoryDraft.photoIds[to] = swap; } }
+          renderMemories();
+        } else if (action === "save") saveBoothDraft();
+        else if (action === "export") {
+          if (!state.memoryDraft || state.memoryDraft.photoIds.length < 3 || state.memoryDraft.photoIds.length > 4) { toast("Choose 3 or 4 photos for your booth."); return; }
+          saveBoothDraft().then(exportBooth);
+        }
+      });
       $("cdPlan").addEventListener("click", function (e) { e.stopPropagation(); openEvForm(null, today()); });
 
       function tapCountdown() { if (state.nextId) openDetail(state.nextId); else openEvForm(null, today()); }
@@ -1803,6 +2397,8 @@
 
         state.evCol = db.collection("events");
         state.profRef = db.doc("couple/profile");
+        state.memPhotoCol = db.collection("memories/photos");
+        state.memBoothCol = db.collection("memories/booths");
         render();
 
         state.profRef.onSnapshot(function (snap) {
@@ -1823,6 +2419,15 @@
             };
           }).filter(function (e) { return e.title && DATE_RE.test(e.date); });
           render();
+        });
+        state.memPhotoCol.onSnapshot(function (snap) {
+          state.memoryPhotos = snap.docs.map(function (d) { var o = d.data() || {}; return { id: d.id, imageData: typeof o.imageData === "string" ? o.imageData : "", imageUrl: typeof o.imageUrl === "string" ? o.imageUrl : "", storagePath: o.storagePath || "", createdBy: o.createdBy || null, createdAt: Number(o.createdAt) || 0 }; }).filter(function (p) { return !!memoryPhotoUrl(p); }).sort(function (a, b) { return a.createdAt - b.createdAt; });
+          if (state.tab === "mem") renderMemories();
+        });
+        state.memBoothCol.onSnapshot(function (snap) {
+          state.memoryBooths = {};
+          snap.docs.forEach(function (d) { state.memoryBooths[d.id] = d.data() || {}; });
+          if (state.tab === "mem" && state.memoryMode !== "booth") renderMemories();
         });
 
         if (!window.coupleApp.isClaimed()) setTimeout(showSetupModal, 100);
