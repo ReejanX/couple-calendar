@@ -12,48 +12,37 @@
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
 
-  <!-- Firebase Compat SDK for 100% Free 24/7 Internet Sync -->
+  <!-- Firebase Compat SDK for free 24/7 internet sync -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="firebase-config.js"></script>
 
   <style>
     /* ==========================================================================
    DESIGN SYSTEM: Warm Cream, Muted Blush, Dusty Rose & Soft Lavender
-   Sophisticated, romantic, and balanced for two partners in a long-distance relationship.
    ========================================================================== */
     :root {
-      /* Warm cream & linen backgrounds */
       --bg: #FAF6F0;
       --surface: #FFFFFF;
       --surface-2: #F5EFEB;
       --surface-3: #EFE8E2;
       --surface-card: #FFFFFF;
-
-      /* Typography & contrast (WCAG AAA / AA compliant) */
       --fg: #2D2427;
       --muted: #7E7278;
       --line: #E8E0D9;
       --line-light: #F0EAE4;
-
-      /* Primary Accent: Dusty Rose & Muted Blush */
       --accent: #C44D68;
       --accent-fg: #FFFFFF;
       --accent-soft: #F9EBF0;
       --accent-hover: #AE3E56;
       --accent-border: #ECCDD7;
-
-      /* Secondary Accent: Soft Lavender */
       --lavender: #7B688E;
       --lavender-soft: #F2EEF7;
       --lavender-border: #DDD5E7;
-
-      /* Reunion Countdown Card Gradient */
       --card-bg-start: #FFF8FA;
       --card-bg-end: #F8E6ED;
       --card-border: #EED2DC;
-
-      /* Feedback colors */
       --ok: #20764C;
       --ok-bg: #E7F6ED;
       --ok-border: #C8EBD6;
@@ -62,12 +51,9 @@
       --warn-border: #F5DEC0;
       --danger: #B52B36;
       --danger-soft: #FCECEE;
-
-      /* Shadows & Elevation */
       --shadow-sm: 0 2px 8px rgba(70, 35, 45, 0.04);
       --shadow: 0 8px 24px -4px rgba(70, 35, 45, 0.06), 0 2px 6px -2px rgba(70, 35, 45, 0.03);
       --shadow-lg: 0 16px 36px -6px rgba(70, 35, 45, 0.09), 0 4px 12px -2px rgba(70, 35, 45, 0.04);
-
       --font: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
       --tabh: 66px;
     }
@@ -78,26 +64,21 @@
       --surface-2: #2B2328;
       --surface-3: #382E34;
       --surface-card: #221B1F;
-
       --fg: #F7EFF2;
       --muted: #B3A4AC;
       --line: #382D33;
       --line-light: #2D2328;
-
       --accent: #E5738E;
       --accent-fg: #200810;
       --accent-soft: #381E27;
       --accent-hover: #F28DA4;
       --accent-border: #522736;
-
       --lavender: #AC97C3;
       --lavender-soft: #2D2237;
       --lavender-border: #463556;
-
       --card-bg-start: #2A1D23;
       --card-bg-end: #3D222F;
       --card-border: #542D3F;
-
       --ok: #6ED39E;
       --ok-bg: #153322;
       --ok-border: #234E35;
@@ -106,16 +87,13 @@
       --warn-border: #573C20;
       --danger: #FF858F;
       --danger-soft: #3B161B;
-
       --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
       --shadow: 0 8px 28px -4px rgba(0, 0, 0, 0.5);
       --shadow-lg: 0 16px 40px -6px rgba(0, 0, 0, 0.65);
       color-scheme: dark;
     }
 
-    :root[data-theme="light"] {
-      color-scheme: light;
-    }
+    :root[data-theme="light"] { color-scheme: light; }
 
     @media (prefers-color-scheme: dark) {
       :root:not([data-theme="light"]):not([data-theme="dark"]) {
@@ -154,17 +132,14 @@
       }
     }
 
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-    html,
-    body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
+    /* FIX: author rules such as .btnrow / .stack { display:flex } were overriding the
+       browser's default [hidden] rule, so "hidden" buttons and the cancel-confirm box
+       were always visible. This makes the hidden attribute always win. */
+    [hidden] { display: none !important; }
+
+    html, body { height: 100%; margin: 0; padding: 0; }
 
     body {
       background: var(--bg);
@@ -175,24 +150,10 @@
       transition: background-color 0.25s ease, color 0.25s ease;
     }
 
-    button,
-    input,
-    textarea,
-    select {
-      font: inherit;
-      color: inherit;
-    }
+    button, input, textarea, select { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    :focus-visible { outline: 2.5px solid var(--accent); outline-offset: 2.5px; }
 
-    button {
-      cursor: pointer;
-    }
-
-    :focus-visible {
-      outline: 2.5px solid var(--accent);
-      outline-offset: 2.5px;
-    }
-
-    /* Responsive Container: mobile phone framing on desktop/tablet, fluid on mobile */
     .app {
       max-width: 440px;
       margin: 0 auto;
@@ -216,1339 +177,256 @@
     }
 
     /* Header Bar */
-    .bar {
-      display: grid;
-      grid-template-columns: 44px 1fr 44px;
-      align-items: center;
-      padding-block: 6px 12px;
-    }
-
-    .bar h1 {
-      margin: 0;
-      font-size: 1.05rem;
-      font-weight: 700;
-      text-align: center;
-      letter-spacing: -0.01em;
-      color: var(--fg);
-    }
+    .bar { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; padding-block: 6px 14px; }
+    .bar h1 { margin: 0; font-size: 1.05rem; font-weight: 700; text-align: center; letter-spacing: -0.01em; color: var(--fg); }
 
     .iconbtn {
-      width: 42px;
-      height: 42px;
-      border-radius: 14px;
-      border: 1px solid var(--line);
-      background: var(--surface);
-      box-shadow: var(--shadow-sm);
-      display: grid;
-      place-items: center;
-      color: var(--fg);
-      padding: 0;
-      transition: all 0.15s ease;
+      width: 42px; height: 42px; border-radius: 14px; border: 1px solid var(--line);
+      background: var(--surface); box-shadow: var(--shadow-sm); display: grid; place-items: center;
+      color: var(--fg); padding: 0; transition: all 0.15s ease;
     }
+    .iconbtn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+    .iconbtn.flat { box-shadow: none; background: var(--surface-2); border-color: transparent; }
 
-    .iconbtn:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-      transform: translateY(-1px);
-    }
+    /* Home greeting */
+    .home-hero { margin-bottom: 16px; padding: 2px 2px 0; }
+    .greeting-wrap { display: flex; flex-direction: column; gap: 3px; }
+    .greeting-eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--lavender); }
+    .greeting-title { margin: 0; font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; color: var(--fg); }
+    .greeting-subtitle { margin: 0; font-size: 0.88rem; color: var(--muted); }
 
-    .iconbtn.flat {
-      box-shadow: none;
-      background: var(--surface-2);
-      border-color: transparent;
-    }
-
-    /* Personalized Home Hero & Greeting */
-    .home-hero {
-      margin-bottom: 16px;
-      padding: 2px 2px 0;
-    }
-
-    .greeting-wrap {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-
-    .greeting-eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.76rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--lavender);
-    }
-
-    .greeting-title {
-      margin: 0;
-      font-size: 1.35rem;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      color: var(--fg);
-    }
-
-    .greeting-subtitle {
-      margin: 0;
-      font-size: 0.88rem;
-      color: var(--muted);
-    }
-
-    /* Locked Session Status Bar */
-    .sess-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      background: var(--surface-2);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 8px 12px;
-      margin-bottom: 16px;
-      font-size: 0.85rem;
-    }
-
-    .sess-info {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-width: 0;
-    }
-
-    .sess-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--ok);
-      box-shadow: 0 0 0 3px var(--ok-bg);
-      flex: none;
-    }
-
-    .sess-label {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      font-weight: 500;
-      font-size: 0.83rem;
-      color: var(--muted);
-    }
-
-    .sess-label strong {
-      font-weight: 700;
-      color: var(--fg);
-    }
-
-    .sess-actions {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex: none;
-    }
-
-    .sess-btn {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      color: var(--fg);
-      font-size: 0.78rem;
-      font-weight: 600;
-      border-radius: 12px;
-      padding: 5px 10px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-
-    .sess-btn.share {
-      background: var(--accent-soft);
-      color: var(--accent);
-      border-color: var(--accent-border);
-    }
-
-    .sess-btn.share:hover {
-      background: var(--accent);
-      color: var(--accent-fg);
-    }
-
-    /* Prominent Reunion Countdown Card */
-    .countwrap {
-      position: relative;
-      isolation: isolate;
-      margin-bottom: 22px;
-    }
-
+    /* Countdown card */
+    .countwrap { position: relative; isolation: isolate; margin-bottom: 22px; }
     .countcard {
-      position: relative;
-      overflow: hidden;
-      border-radius: 26px;
-      padding: 22px 22px 20px;
-      min-height: 172px;
-      display: flex;
-      justify-content: space-between;
-      gap: 14px;
+      position: relative; overflow: hidden; border-radius: 26px; padding: 22px 22px 20px; min-height: 172px;
+      display: flex; justify-content: space-between; gap: 14px;
       background: linear-gradient(135deg, var(--card-bg-start) 0%, var(--card-bg-end) 100%);
-      border: 1px solid var(--card-border);
-      box-shadow: var(--shadow);
+      border: 1px solid var(--card-border); box-shadow: var(--shadow);
       transition: transform 0.18s ease, box-shadow 0.18s ease;
     }
-
-    .countcard:hover {
-      transform: translateY(-1.5px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .countcard-watermark {
-      position: absolute;
-      right: -14px;
-      bottom: -18px;
-      pointer-events: none;
-      opacity: 0.06;
-      color: var(--accent);
-      z-index: 0;
-    }
-
-    .cl {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      min-width: 0;
-      z-index: 1;
-    }
-
-    .eyebrow {
-      font-size: 0.82rem;
-      color: var(--lavender);
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
-    .big {
-      font-size: 4.2rem;
-      font-weight: 800;
-      line-height: 1;
-      letter-spacing: -0.04em;
-      font-variant-numeric: tabular-nums;
-      margin-block: 6px 4px;
-      color: var(--accent);
-    }
-
-    .big.word {
-      font-size: 1.6rem;
-      letter-spacing: -0.01em;
-      margin-block: 12px 8px;
-      text-wrap: balance;
-      color: var(--fg);
-    }
-
-    .cdlabel {
-      color: var(--muted);
-      font-size: 0.90rem;
-      font-weight: 500;
-    }
-
-    .cr {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      justify-content: flex-end;
-      text-align: right;
-      min-width: 0;
-      max-width: 52%;
-      gap: 4px;
-      z-index: 1;
-      color: var(--fg);
-    }
-
-    .cr .t {
-      font-weight: 700;
-      font-size: 1.05rem;
-      overflow-wrap: anywhere;
-      text-wrap: balance;
-      color: var(--fg);
-    }
-
-    .cr .w {
-      color: var(--muted);
-      font-size: 0.86rem;
-      font-weight: 500;
-    }
-
+    .countcard:hover { transform: translateY(-1.5px); box-shadow: var(--shadow-lg); }
+    .countcard-watermark { position: absolute; right: -14px; bottom: -18px; pointer-events: none; opacity: 0.06; color: var(--accent); z-index: 0; }
+    .cl { display: flex; flex-direction: column; justify-content: space-between; min-width: 0; z-index: 1; }
+    .eyebrow { font-size: 0.82rem; color: var(--lavender); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+    .big { font-size: 4.2rem; font-weight: 800; line-height: 1; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; margin-block: 6px 4px; color: var(--accent); }
+    .big.word { font-size: 1.6rem; letter-spacing: -0.01em; margin-block: 12px 8px; text-wrap: balance; color: var(--fg); }
+    .cdlabel { color: var(--muted); font-size: 0.90rem; font-weight: 500; }
+    .cr { display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-end; text-align: right; min-width: 0; max-width: 52%; gap: 4px; z-index: 1; color: var(--fg); }
+    .cr .t { font-weight: 700; font-size: 1.05rem; overflow-wrap: anywhere; text-wrap: balance; color: var(--fg); }
+    .cr .w { color: var(--muted); font-size: 0.86rem; font-weight: 500; }
     .plan {
-      align-self: flex-end;
-      background: var(--accent);
-      color: var(--accent-fg);
-      border: 0;
-      border-radius: 14px;
-      padding: 10px 16px;
-      min-height: 42px;
-      font-weight: 700;
-      font-size: 0.88rem;
-      box-shadow: var(--shadow-sm);
-      transition: all 0.15s ease;
+      align-self: flex-end; background: var(--accent); color: var(--accent-fg); border: 0; border-radius: 14px;
+      padding: 10px 16px; min-height: 42px; font-weight: 700; font-size: 0.88rem; box-shadow: var(--shadow-sm); transition: all 0.15s ease;
     }
+    .plan:hover { background: var(--accent-hover); transform: translateY(-1px); }
 
-    .plan:hover {
-      background: var(--accent-hover);
-      transform: translateY(-1px);
-    }
-
-    /* Couple Profile Sanctuary Card */
+    /* Couple card */
     .couple {
-      border: 1px solid var(--line);
-      border-radius: 26px;
-      padding: 18px 16px 14px;
-      background: var(--surface-2);
-      display: flex;
-      align-items: center;
-      justify-content: space-around;
-      gap: 8px;
-      margin-bottom: 8px;
+      border: 1px solid var(--line); border-radius: 26px; padding: 18px 16px 14px; background: var(--surface-2);
+      display: flex; align-items: center; justify-content: space-around; gap: 8px; margin-bottom: 8px;
     }
+    .person { background: none; border: 0; padding: 4px; display: flex; flex-direction: column; align-items: center; gap: 8px; width: clamp(100px, 32vw, 134px); min-width: 0; transition: transform 0.15s ease; }
+    .person:hover { transform: translateY(-1px); }
+    .person-avatar-wrap { display: block; width: 100%; position: relative; }
+    .person .avatar { width: 100%; border-radius: 24px; box-shadow: var(--shadow-sm); border: 2px solid var(--surface); }
+    .pname { font-weight: 700; font-size: 0.98rem; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--fg); }
+    .prole { font-size: 0.74rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .heart-container { display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--accent); }
+    .heart-pulse { display: grid; place-items: center; }
+    .heart-pulse svg { filter: drop-shadow(0 2px 6px rgba(196, 77, 104, 0.25)); }
+    .heart-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--lavender); }
+    .avatar { display: grid; place-items: center; overflow: hidden; background: var(--accent-soft); color: var(--accent); border-radius: 24px; aspect-ratio: 1; }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .avatar svg { width: 44%; height: 44%; }
+    .avatar.mini { width: 30px; height: 30px; border-radius: 10px; border: 2px solid var(--surface); margin-left: -9px; flex: none; box-shadow: var(--shadow-sm); }
+    .avatar.mini:first-child { margin-left: 0; }
 
-    .person {
-      background: none;
-      border: 0;
-      padding: 4px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      width: clamp(100px, 32vw, 134px);
-      min-width: 0;
-      transition: transform 0.15s ease;
-    }
+    /* Sections & timeline */
+    .sechead { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 28px 0 14px; }
+    .sechead-title-group { display: flex; align-items: center; gap: 8px; }
+    .sechead h2 { margin: 0; font-size: 1.12rem; font-weight: 800; letter-spacing: -0.01em; color: var(--fg); }
+    .plan-count-badge { font-size: 0.72rem; font-weight: 700; background: var(--surface-3); color: var(--muted); padding: 2px 7px; border-radius: 99px; }
+    .plan-count-badge:empty { display: none; }
+    .linkbtn { background: none; border: 0; color: var(--accent); font-weight: 700; font-size: 0.88rem; padding: 6px 0; min-height: 38px; display: inline-flex; align-items: center; gap: 4px; }
+    .linkbtn:hover { color: var(--accent-hover); }
+    .timeline { list-style: none; margin: 0; padding: 0 0 0 28px; }
+    .tl { position: relative; padding-bottom: 22px; }
+    .tl::before { content: ""; position: absolute; left: -21px; top: 22px; bottom: -6px; border-left: 2px dashed var(--line); }
+    .tl:last-child { padding-bottom: 4px; }
+    .tl:last-child::before { display: none; }
+    .node { position: absolute; left: -28px; top: 8px; width: 14px; height: 14px; border-radius: 50%; border: 3px solid var(--accent); background: var(--surface); box-shadow: 0 0 0 2px var(--surface); }
+    .tlhead { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 8px; margin-bottom: 10px; }
+    .dnum { font-size: 1.6rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; color: var(--fg); }
+    .dtxt { color: var(--muted); font-size: 0.90rem; font-weight: 500; }
+    .evlist { display: flex; flex-direction: column; gap: 10px; }
+    .evwrap { display: flex; flex-direction: column; gap: 8px; }
 
-    .person:hover {
-      transform: translateY(-1px);
-    }
-
-    .person-avatar-wrap {
-      display: block;
-      width: 100%;
-      position: relative;
-    }
-
-    .person .avatar {
-      width: 100%;
-      border-radius: 24px;
-      box-shadow: var(--shadow-sm);
-      border: 2px solid var(--surface);
-    }
-
-    .pname {
-      font-weight: 700;
-      font-size: 0.98rem;
-      max-width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      color: var(--fg);
-    }
-
-    .prole {
-      font-size: 0.74rem;
-      font-weight: 600;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .heart-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      color: var(--accent);
-    }
-
-    .heart-pulse {
-      display: grid;
-      place-items: center;
-    }
-
-    .heart-pulse svg {
-      filter: drop-shadow(0 2px 6px rgba(196, 77, 104, 0.25));
-    }
-
-    .heart-label {
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--lavender);
-    }
-
-    .avatar {
-      display: grid;
-      place-items: center;
-      overflow: hidden;
-      background: var(--accent-soft);
-      color: var(--accent);
-      border-radius: 24px;
-      aspect-ratio: 1;
-    }
-
-    .avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .avatar svg {
-      width: 44%;
-      height: 44%;
-    }
-
-    .avatar.mini {
-      width: 30px;
-      height: 30px;
-      border-radius: 10px;
-      border: 2px solid var(--surface);
-      margin-left: -9px;
-      flex: none;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .avatar.mini:first-child {
-      margin-left: 0;
-    }
-
-    /* Sections & Timeline */
-    .sechead {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin: 28px 0 14px;
-    }
-
-    .sechead-title-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .sechead h2 {
-      margin: 0;
-      font-size: 1.12rem;
-      font-weight: 800;
-      letter-spacing: -0.01em;
-      color: var(--fg);
-    }
-
-    .plan-count-badge {
-      font-size: 0.72rem;
-      font-weight: 700;
-      background: var(--surface-3);
-      color: var(--muted);
-      padding: 2px 7px;
-      border-radius: 99px;
-    }
-
-    .linkbtn {
-      background: none;
-      border: 0;
-      color: var(--accent);
-      font-weight: 700;
-      font-size: 0.88rem;
-      padding: 6px 0;
-      min-height: 38px;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .linkbtn:hover {
-      color: var(--accent-hover);
-    }
-
-    .timeline {
-      list-style: none;
-      margin: 0;
-      padding: 0 0 0 28px;
-    }
-
-    .tl {
-      position: relative;
-      padding-bottom: 22px;
-    }
-
-    .tl::before {
-      content: "";
-      position: absolute;
-      left: -21px;
-      top: 22px;
-      bottom: -6px;
-      border-left: 2px dashed var(--line);
-    }
-
-    .tl:last-child {
-      padding-bottom: 4px;
-    }
-
-    .tl:last-child::before {
-      display: none;
-    }
-
-    .node {
-      position: absolute;
-      left: -28px;
-      top: 8px;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      border: 3px solid var(--accent);
-      background: var(--surface);
-      box-shadow: 0 0 0 2px var(--surface);
-    }
-
-    .tlhead {
-      display: flex;
-      align-items: baseline;
-      flex-wrap: wrap;
-      gap: 2px 8px;
-      margin-bottom: 10px;
-    }
-
-    .dnum {
-      font-size: 1.6rem;
-      font-weight: 800;
-      line-height: 1;
-      font-variant-numeric: tabular-nums;
-      color: var(--fg);
-    }
-
-    .dtxt {
-      color: var(--muted);
-      font-size: 0.90rem;
-      font-weight: 500;
-    }
-
-    .evlist {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .evwrap {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    /* Romantic Event Card */
+    /* Event card */
     .evcard {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      background: var(--surface-card);
-      border-radius: 20px;
-      padding: 16px 18px;
-      min-height: 72px;
-      cursor: pointer;
-      border: 1px solid var(--line);
-      box-shadow: var(--shadow-sm);
-      transition: all 0.16s ease;
+      display: flex; flex-direction: column; gap: 8px; background: var(--surface-card); border-radius: 20px;
+      padding: 16px 18px; min-height: 72px; cursor: pointer; border: 1px solid var(--line);
+      box-shadow: var(--shadow-sm); transition: all 0.16s ease;
     }
-
-    .evcard:hover {
-      border-color: var(--accent-border);
-      transform: translateY(-1.5px);
-      box-shadow: var(--shadow);
-    }
-
-    .evcard.pending-incoming {
-      background: linear-gradient(135deg, var(--card-bg-start) 0%, var(--card-bg-end) 100%);
-      border-color: var(--accent-border);
-    }
-
-    .evcard-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    .evcard-body {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .evtitle {
-      font-weight: 700;
-      font-size: 1.05rem;
-      overflow-wrap: anywhere;
-      color: var(--fg);
-    }
-
-    .evtime {
-      color: var(--muted);
-      font-size: 0.86rem;
-      margin-top: 2px;
-      font-variant-numeric: tabular-nums;
-      font-weight: 500;
-    }
-
-    .evpersonal-msg {
-      font-size: 0.86rem;
-      color: var(--accent);
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .evpersonal-msg.waiting {
-      color: var(--muted);
-      font-weight: 500;
-      font-size: 0.82rem;
-    }
-
-    .evcard.declined .evtitle {
-      text-decoration: line-through;
-      color: var(--muted);
-    }
-
-    .minis {
-      display: flex;
-      align-items: center;
-      flex: none;
-    }
-
-    .pill {
-      flex: none;
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 4px 9px;
-      border-radius: 99px;
-      letter-spacing: 0.02em;
-    }
-
-    .pill.pending {
-      background: var(--warn-bg);
-      color: var(--warn);
-      border: 1px solid var(--warn-border);
-    }
-
-    .pill.accepted {
-      background: var(--ok-bg);
-      color: var(--ok);
-      border: 1px solid var(--ok-border);
-    }
-
-    .pill.declined {
-      background: var(--surface-3);
-      color: var(--muted);
-    }
-
-    .answer {
-      display: flex;
-      gap: 8px;
-      margin-top: 4px;
-    }
-
-    .empty {
-      color: var(--muted);
-      margin: 0;
-      padding: 8px 0 12px;
-      font-size: 0.92rem;
-    }
+    .evcard:hover { border-color: var(--accent-border); transform: translateY(-1.5px); box-shadow: var(--shadow); }
+    .evcard.pending-incoming { background: linear-gradient(135deg, var(--card-bg-start) 0%, var(--card-bg-end) 100%); border-color: var(--accent-border); }
+    .evcard-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .evcard-body { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .evtitle { font-weight: 700; font-size: 1.05rem; overflow-wrap: anywhere; color: var(--fg); }
+    .evtime { color: var(--muted); font-size: 0.86rem; margin-top: 2px; font-variant-numeric: tabular-nums; font-weight: 500; }
+    .evpersonal-msg { font-size: 0.86rem; color: var(--accent); font-weight: 600; display: flex; align-items: center; gap: 5px; }
+    .evpersonal-msg.waiting { color: var(--muted); font-weight: 500; font-size: 0.82rem; }
+    .evcard.declined .evtitle { text-decoration: line-through; color: var(--muted); }
+    .minis { display: flex; align-items: center; flex: none; }
+    .pill { flex: none; font-size: 0.72rem; font-weight: 700; padding: 4px 9px; border-radius: 99px; letter-spacing: 0.02em; }
+    .pill.pending { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .pill.accepted { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .pill.declined { background: var(--surface-3); color: var(--muted); }
+    .answer { display: flex; gap: 8px; margin-top: 4px; }
+    .empty { color: var(--muted); margin: 0; padding: 8px 0 12px; font-size: 0.92rem; }
 
     .btn {
-      border: 0;
-      border-radius: 14px;
-      min-height: 46px;
-      padding: 0 18px;
-      font-weight: 700;
-      font-size: 0.92rem;
-      background: var(--surface-2);
-      color: var(--fg);
-      border: 1px solid var(--line);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: all 0.15s ease;
+      border: 0; border-radius: 14px; min-height: 46px; padding: 0 18px; font-weight: 700; font-size: 0.92rem;
+      background: var(--surface-2); color: var(--fg); border: 1px solid var(--line);
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.15s ease;
     }
+    .btn:hover { background: var(--surface-3); transform: translateY(-0.5px); }
+    .btn.primary { background: var(--accent); color: var(--accent-fg); border-color: transparent; box-shadow: var(--shadow-sm); }
+    .btn.primary:hover { background: var(--accent-hover); box-shadow: var(--shadow); }
+    .btn.danger { background: var(--danger-soft); color: var(--danger); border-color: transparent; }
+    .btn.danger:hover { border-color: var(--danger); }
+    .btn.grow { flex: 1; }
+    .btn[disabled] { opacity: 0.55; cursor: default; transform: none; }
 
-    .btn:hover {
-      background: var(--surface-3);
-      transform: translateY(-0.5px);
-    }
-
-    .btn.primary {
-      background: var(--accent);
-      color: var(--accent-fg);
-      border-color: transparent;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .btn.primary:hover {
-      background: var(--accent-hover);
-      box-shadow: var(--shadow);
-    }
-
-    .btn.danger {
-      background: var(--danger-soft);
-      color: var(--danger);
-      border-color: transparent;
-    }
-
-    .btn.danger:hover {
-      border-color: var(--danger);
-    }
-
-    .btn.grow {
-      flex: 1;
-    }
-
-    .btn[disabled] {
-      opacity: 0.55;
-      cursor: default;
-    }
-
-    /* Calendar View */
-    .monthcard {
-      border-radius: 26px;
-      padding: 18px 14px 14px;
-      background: var(--surface);
-      box-shadow: var(--shadow);
-      border: 1px solid var(--line);
-    }
-
-    .mhead {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-
-    .mhead h2 {
-      margin: 0;
-      font-size: 1.15rem;
-      font-weight: 800;
-      color: var(--fg);
-      letter-spacing: -0.01em;
-    }
-
-    .dow,
-    .mgrid {
-      display: grid;
-      grid-template-columns: repeat(7, minmax(0, 1fr));
-    }
-
-    .dow div {
-      text-align: center;
-      color: var(--muted);
-      font-size: 0.76rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      padding: 6px 0 8px;
-    }
-
-    .mgrid {
-      row-gap: 4px;
-    }
-
+    /* Calendar */
+    .monthcard { border-radius: 26px; padding: 18px 14px 14px; background: var(--surface); box-shadow: var(--shadow); border: 1px solid var(--line); }
+    .mhead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .mhead h2 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--fg); letter-spacing: -0.01em; }
+    .dow, .mgrid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+    .dow div { text-align: center; color: var(--muted); font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 6px 0 8px; }
+    .mgrid { row-gap: 4px; }
     .day {
-      position: relative;
-      height: 46px;
-      border: 0;
-      background: transparent;
-      border-radius: 14px;
-      font-weight: 600;
-      font-size: 0.98rem;
-      font-variant-numeric: tabular-nums;
-      padding: 8px 0 0;
-      margin-inline: 2px;
-      color: var(--fg);
+      position: relative; height: 46px; border: 0; background: transparent; border-radius: 14px; font-weight: 600;
+      font-size: 0.98rem; font-variant-numeric: tabular-nums; padding: 8px 0 0; margin-inline: 2px; color: var(--fg);
       transition: background-color 0.12s ease;
     }
+    .day:hover { background: var(--surface-2); }
+    .day.out { color: var(--muted); opacity: 0.35; }
+    .day.has { background: var(--surface-2); font-weight: 700; }
+    .day.today { box-shadow: inset 0 0 0 1.5px var(--accent); color: var(--accent); font-weight: 800; }
+    .day.sel { background: var(--accent); color: var(--accent-fg); font-weight: 800; box-shadow: var(--shadow-sm); }
+    .day .dot { position: absolute; top: 6px; left: 50%; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--accent); }
+    .day .dot.hollow { background: var(--lavender); }
+    .day.sel .dot { background: var(--accent-fg); }
+    .daytools { display: flex; justify-content: flex-end; margin-top: 10px; min-height: 0; }
 
-    .day:hover {
-      background: var(--surface-2);
-    }
-
-    .day.out {
-      color: var(--muted);
-      opacity: 0.35;
-    }
-
-    .day.has {
-      background: var(--surface-2);
-      font-weight: 700;
-    }
-
-    .day.today {
-      box-shadow: inset 0 0 0 1.5px var(--accent);
-      color: var(--accent);
-      font-weight: 800;
-    }
-
-    .day.sel {
-      background: var(--accent);
-      color: var(--accent-fg);
-      font-weight: 800;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .day .dot {
-      position: absolute;
-      top: 6px;
-      left: 50%;
-      width: 5px;
-      height: 5px;
-      margin-left: -2.5px;
-      border-radius: 50%;
-      background: var(--accent);
-    }
-
-    .day .dot.hollow {
-      background: var(--lavender);
-    }
-
-    .day.sel .dot {
-      background: var(--accent-fg);
-    }
-
-    .daytools {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 10px;
-      min-height: 0;
-    }
-
-    /* Fixed Floating Action Button & Bottom Tab Bar */
+    /* Floating button & tabs */
     .addwrap {
-      position: fixed;
-      z-index: 19;
-      left: 50%;
-      transform: translateX(-50%);
-      width: min(100%, 440px);
+      position: fixed; z-index: 19; left: 50%; transform: translateX(-50%); width: min(100%, 440px);
       bottom: calc(var(--tabh) + env(safe-area-inset-bottom, 0px) + 12px);
-      padding-left: max(18px, env(safe-area-inset-left, 0px));
-      padding-right: max(18px, env(safe-area-inset-right, 0px));
+      padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px));
     }
-
     .addbtn {
-      width: 100%;
-      height: 54px;
-      border: 0;
-      border-radius: 18px;
-      background: var(--accent);
-      color: var(--accent-fg);
-      font-weight: 800;
-      font-size: 1.02rem;
-      letter-spacing: -0.01em;
-      box-shadow: var(--shadow);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: all 0.15s ease;
+      width: 100%; height: 54px; border: 0; border-radius: 18px; background: var(--accent); color: var(--accent-fg);
+      font-weight: 800; font-size: 1.02rem; letter-spacing: -0.01em; box-shadow: var(--shadow);
+      display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.15s ease;
     }
-
-    .addbtn:hover {
-      background: var(--accent-hover);
-      transform: translateY(-1px);
-      box-shadow: var(--shadow-lg);
-    }
-
+    .addbtn:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: var(--shadow-lg); }
     .tabs {
-      position: fixed;
-      z-index: 20;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: 0;
-      width: min(100%, 440px);
-      background: var(--surface);
-      border-top: 1px solid var(--line);
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+      position: fixed; z-index: 20; left: 50%; transform: translateX(-50%); bottom: 0; width: min(100%, 440px);
+      background: var(--surface); border-top: 1px solid var(--line); display: grid; grid-template-columns: 1fr 1fr;
       padding-bottom: env(safe-area-inset-bottom, 0px);
-      padding-left: max(18px, env(safe-area-inset-left, 0px));
-      padding-right: max(18px, env(safe-area-inset-right, 0px));
+      padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px));
     }
-
     @media (min-width: 520px) {
-      .tabs {
-        bottom: 24px;
-        border-radius: 0 0 36px 36px;
-        border-bottom: 1px solid var(--line);
-      }
-
-      .addwrap {
-        bottom: calc(var(--tabh) + 36px);
-      }
+      .tabs { bottom: 24px; border-radius: 0 0 36px 36px; border-bottom: 1px solid var(--line); }
+      .addwrap { bottom: calc(var(--tabh) + 36px); }
     }
+    .tab { height: var(--tabh); background: none; border: 0; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 0.74rem; font-weight: 600; transition: color 0.15s ease; }
+    .tab-indicator { display: grid; place-items: center; width: 44px; height: 28px; border-radius: 12px; transition: background-color 0.15s ease; }
+    .tab svg { width: 22px; height: 22px; }
+    .tab[aria-current="page"] { color: var(--accent); font-weight: 700; }
+    .tab[aria-current="page"] .tab-indicator { background: var(--accent-soft); }
 
-    .tab {
-      height: var(--tabh);
-      background: none;
-      border: 0;
-      color: var(--muted);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 3px;
-      font-size: 0.74rem;
-      font-weight: 600;
-      transition: color 0.15s ease;
-    }
-
-    .tab-indicator {
-      display: grid;
-      place-items: center;
-      width: 44px;
-      height: 28px;
-      border-radius: 12px;
-      transition: background-color 0.15s ease;
-    }
-
-    .tab svg {
-      width: 22px;
-      height: 22px;
-    }
-
-    .tab[aria-current="page"] {
-      color: var(--accent);
-      font-weight: 700;
-    }
-
-    .tab[aria-current="page"] .tab-indicator {
-      background: var(--accent-soft);
-    }
-
-    /* Sheets / Modals */
-    .scrim {
-      position: fixed;
-      inset: 0;
-      z-index: 30;
-      background: rgba(30, 20, 25, 0.48);
-      backdrop-filter: blur(3px);
-    }
-
+    /* Sheets */
+    .scrim { position: fixed; inset: 0; z-index: 30; background: rgba(30, 20, 25, 0.48); backdrop-filter: blur(3px); }
     .sheet {
-      position: fixed;
-      z-index: 40;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: 0;
-      width: min(100%, 440px);
-      max-height: 94%;
-      overflow-y: auto;
-      overscroll-behavior: contain;
-      background: var(--surface);
-      border-radius: 30px 30px 0 0;
-      padding-top: 12px;
-      padding-bottom: calc(26px + env(safe-area-inset-bottom, 0px));
-      padding-left: max(20px, env(safe-area-inset-left, 0px));
-      padding-right: max(20px, env(safe-area-inset-right, 0px));
+      position: fixed; z-index: 40; left: 50%; transform: translateX(-50%); bottom: 0; width: min(100%, 440px);
+      max-height: 94%; overflow-y: auto; overscroll-behavior: contain; background: var(--surface);
+      border-radius: 30px 30px 0 0; padding-top: 12px; padding-bottom: calc(26px + env(safe-area-inset-bottom, 0px));
+      padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px));
       box-shadow: 0 -20px 50px rgba(45, 20, 30, 0.20);
     }
+    .grab { width: 42px; height: 4.5px; border-radius: 4px; background: var(--line); margin: 0 auto 10px; }
+    .shead { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 16px; }
+    .shead h2 { margin: 0; font-size: 1.25rem; font-weight: 800; letter-spacing: -0.01em; color: var(--fg); text-wrap: balance; }
+    form, .stack { display: flex; flex-direction: column; gap: 14px; }
+    .field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .flabel { font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
 
-    .grab {
-      width: 42px;
-      height: 4.5px;
-      border-radius: 4px;
-      background: var(--line);
-      margin: 0 auto 10px;
-    }
-
-    .shead {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
-    .shead h2 {
-      margin: 0;
-      font-size: 1.25rem;
-      font-weight: 800;
-      letter-spacing: -0.01em;
-      color: var(--fg);
-      text-wrap: balance;
-    }
-
-    form,
-    .stack {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      min-width: 0;
-    }
-
-    .flabel {
-      font-size: 0.78rem;
-      font-weight: 700;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    input[type="text"],
-    input[type="date"],
-    input[type="time"],
-    textarea,
-    select {
-      width: 100%;
-      min-width: 0;
-      min-height: 48px;
-      background: var(--surface-2);
-      border: 1.5px solid var(--line);
-      border-radius: 14px;
-      padding: 12px 14px;
-      font-size: 15px;
-      color: var(--fg);
-      -webkit-appearance: none;
-      appearance: none;
+    input[type="text"], input[type="password"], input[type="date"], input[type="time"], textarea, select {
+      width: 100%; min-width: 0; min-height: 48px; background: var(--surface-2); border: 1.5px solid var(--line);
+      border-radius: 14px; padding: 12px 14px; font-size: 16px; color: var(--fg); -webkit-appearance: none; appearance: none;
       transition: border-color 0.15s ease, background-color 0.15s ease;
     }
+    textarea { min-height: 84px; resize: vertical; }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); background: var(--surface); }
+    input.invalid { border-color: var(--danger); background: var(--danger-soft); }
 
-    textarea {
-      min-height: 84px;
-      resize: vertical;
-    }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .switchrow { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 0 4px; font-weight: 600; color: var(--fg); }
+    .switch { appearance: none; -webkit-appearance: none; width: 50px; height: 30px; border-radius: 99px; background: var(--line); position: relative; border: 0; margin: 0; transition: background 0.15s; flex: none; }
+    .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.20); transition: transform 0.15s; }
+    .switch:checked { background: var(--accent); }
+    .switch:checked::after { transform: translateX(20px); }
+    .formnote { color: var(--muted); font-size: 0.86rem; margin: 0; line-height: 1.4; }
+    .err { color: var(--danger); font-size: 0.88rem; margin: 0; font-weight: 600; }
+    .btnrow { display: flex; gap: 10px; }
 
-    input:focus,
-    textarea:focus,
-    select:focus {
-      outline: none;
-      border-color: var(--accent);
-      background: var(--surface);
-    }
+    /* Chips */
+    .chip-group { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+    .chip { background: var(--surface-2); border: 1px solid var(--line); border-radius: 99px; padding: 6px 12px; font-size: 0.82rem; font-weight: 600; color: var(--fg); display: inline-flex; align-items: center; gap: 5px; cursor: pointer; transition: all 0.12s ease; }
+    .chip:hover { border-color: var(--accent-border); background: var(--accent-soft); color: var(--accent); }
+    .chip.active { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
 
-    input.invalid {
-      border-color: var(--danger);
-      background: var(--danger-soft);
-    }
+    /* Profile photo block */
+    .pfblock { display: flex; gap: 14px; align-items: flex-start; background: var(--surface-2); border-radius: 22px; padding: 14px; }
+    .pfphoto { position: relative; width: 92px; height: 92px; flex: none; cursor: pointer; border-radius: 22px; overflow: hidden; box-shadow: var(--shadow-sm); border: 2px solid var(--surface); }
+    .pfphoto .avatar { width: 100%; height: 100%; border-radius: 22px; }
+    .pfphoto .cam { position: absolute; right: 4px; bottom: 4px; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--accent-fg); display: grid; place-items: center; border: 2.5px solid var(--surface-2); z-index: 3; }
+    .pfphoto input[type="file"] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 4; }
+    .pfright { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+    .pfright .linkbtn { align-self: flex-start; padding: 6px 0; min-height: 36px; font-size: 0.88rem; }
+    .pfright input[type="text"] { background: var(--surface); }
 
-    .row2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .switchrow {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      min-height: 48px;
-      padding: 0 4px;
-      font-weight: 600;
-      color: var(--fg);
-    }
-
-    .switch {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 50px;
-      height: 30px;
-      border-radius: 99px;
-      background: var(--line);
-      position: relative;
-      border: 0;
-      margin: 0;
-      transition: background 0.15s;
-      flex: none;
-    }
-
-    .switch::after {
-      content: "";
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: #fff;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.20);
-      transition: transform 0.15s;
-    }
-
-    .switch:checked {
-      background: var(--accent);
-    }
-
-    .switch:checked::after {
-      transform: translateX(20px);
-    }
-
-    .formnote {
-      color: var(--muted);
-      font-size: 0.86rem;
-      margin: 0;
-      line-height: 1.4;
-    }
-
-    .err {
-      color: var(--danger);
-      font-size: 0.88rem;
-      margin: 0;
-      font-weight: 600;
-    }
-
-    .btnrow {
-      display: flex;
-      gap: 10px;
-    }
-
-    /* Quick Date & Time Chips */
-    .chip-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 2px;
-    }
-
-    .chip {
-      background: var(--surface-2);
-      border: 1px solid var(--line);
-      border-radius: 99px;
-      padding: 6px 12px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--fg);
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      cursor: pointer;
-      transition: all 0.12s ease;
-    }
-
-    .chip:hover {
-      border-color: var(--accent-border);
-      background: var(--accent-soft);
-      color: var(--accent);
-    }
-
-    .chip.active {
-      background: var(--accent);
-      color: var(--accent-fg);
-      border-color: var(--accent);
-    }
-
-    /* Profile Photo Block */
-    .pfblock {
-      display: flex;
-      gap: 14px;
-      align-items: flex-start;
-      background: var(--surface-2);
-      border-radius: 22px;
-      padding: 14px;
-    }
-
-    .pfphoto {
-      position: relative;
-      width: 92px;
-      height: 92px;
-      flex: none;
-      cursor: pointer;
-      border-radius: 22px;
-      overflow: hidden;
-      box-shadow: var(--shadow-sm);
-      border: 2px solid var(--surface);
-    }
-
-    .pfphoto .avatar {
-      width: 100%;
-      height: 100%;
-      border-radius: 22px;
-    }
-
-    .pfphoto .cam {
-      position: absolute;
-      right: 4px;
-      bottom: 4px;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: var(--accent);
-      color: var(--accent-fg);
-      display: grid;
-      place-items: center;
-      border: 2.5px solid var(--surface-2);
-      z-index: 3;
-    }
-
-    .pfphoto input[type="file"] {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      opacity: 0;
-      cursor: pointer;
-      z-index: 4;
-    }
-
-    .pfright {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .pfright .linkbtn {
-      align-self: flex-start;
-      padding: 6px 0;
-      min-height: 36px;
-      font-size: 0.88rem;
-    }
-
-    .pfright input[type="text"] {
-      background: var(--surface);
-    }
-
-    /* Quick Start Setup Cards */
-    .setup-cards {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-block: 8px 14px;
-    }
-
+    /* Setup (who are you?) */
+    .setup-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-block: 8px 14px; }
     .setup-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      padding: 22px 14px 18px;
-      border-radius: 24px;
-      border: 2px solid var(--line);
-      background: var(--surface-2);
-      color: var(--fg);
-      cursor: pointer;
-      text-align: center;
-      position: relative;
-      transition: all 0.15s ease;
+      display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 22px 14px 18px;
+      border-radius: 24px; border: 2px solid var(--line); background: var(--surface-2); color: var(--fg);
+      cursor: pointer; text-align: center; position: relative; transition: all 0.15s ease;
     }
+    .setup-card:hover:not(:disabled) { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow); }
+    .setup-card.selected { border-color: var(--accent); background: var(--accent-soft); }
+    .setup-card:disabled, .setup-card.taken { opacity: 0.55; cursor: not-allowed; }
+    .setup-card .avatar { width: 70px; height: 70px; border-radius: 22px; }
+    .setup-card-name { font-size: 1.12rem; font-weight: 800; }
+    .setup-card-sub { font-size: 0.78rem; color: var(--muted); font-weight: 600; }
+    .setup-badge { position: absolute; top: 10px; right: 10px; background: var(--accent); color: var(--accent-fg); font-size: 0.70rem; font-weight: 800; padding: 2.5px 7px; border-radius: 99px; display: none; }
+    .setup-card.selected .setup-badge, .setup-card.taken .setup-badge { display: block; }
+    .setup-card.taken .setup-badge { background: var(--muted); color: var(--surface); }
 
-    .setup-card:hover {
-      border-color: var(--accent);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow);
-    }
+    .toast { position: fixed; z-index: 60; left: 50%; transform: translateX(-50%); bottom: calc(var(--tabh) + env(safe-area-inset-bottom, 0px) + 84px); max-width: min(92%, 400px); background: var(--fg); color: var(--surface); padding: 12px 18px; border-radius: 16px; font-weight: 600; font-size: 0.90rem; text-align: center; box-shadow: var(--shadow-lg); }
 
-    .setup-card.selected {
-      border-color: var(--accent);
-      background: var(--accent-soft);
-    }
-
-    .setup-card .avatar {
-      width: 70px;
-      height: 70px;
-      border-radius: 22px;
-    }
-
-    .setup-card-name {
-      font-size: 1.12rem;
-      font-weight: 800;
-    }
-
-    .setup-card-sub {
-      font-size: 0.78rem;
-      color: var(--muted);
-      font-weight: 600;
-    }
-
-    .setup-badge {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: var(--accent);
-      color: var(--accent-fg);
-      font-size: 0.70rem;
-      font-weight: 800;
-      padding: 2.5px 7px;
-      border-radius: 99px;
-      display: none;
-    }
-
-    .setup-card.selected .setup-badge {
-      display: block;
-    }
-
-    .toast {
-      position: fixed;
-      z-index: 60;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: calc(var(--tabh) + env(safe-area-inset-bottom, 0px) + 84px);
-      max-width: min(92%, 400px);
-      background: var(--fg);
-      color: var(--surface);
-      padding: 12px 18px;
-      border-radius: 16px;
-      font-weight: 600;
-      font-size: 0.90rem;
-      text-align: center;
-      box-shadow: var(--shadow-lg);
-    }
-
-    /* Animations & Reduced Motion */
     @media (prefers-reduced-motion: no-preference) {
-      .sheet {
-        animation: rise 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-      }
-
-      @keyframes rise {
-        from {
-          transform: translate(-50%, 28px);
-          opacity: 0;
-        }
-
-        to {
-          transform: translate(-50%, 0);
-          opacity: 1;
-        }
-      }
-
-      .day,
-      .btn,
-      .evcard,
-      .chip,
-      .setup-card {
-        transition: background-color 0.14s ease, border-color 0.14s ease, transform 0.14s ease;
-      }
+      .sheet { animation: rise 0.22s cubic-bezier(0.16, 1, 0.3, 1); }
+      @keyframes rise { from { transform: translate(-50%, 28px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
     }
-
     @media (prefers-reduced-motion: reduce) {
-
-      *,
-      *::before,
-      *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
-      }
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
     }
-
     @media (max-width: 360px) {
-      .big {
-        font-size: 3.4rem;
-      }
-
-      .cr {
-        max-width: 50%;
-      }
+      .big { font-size: 3.4rem; }
+      .cr { max-width: 50%; }
     }
   </style>
 </head>
@@ -1557,7 +435,7 @@
 
   <div class="app" id="app">
     <header class="bar">
-      <button class="iconbtn" id="gear" type="button" aria-label="Settings and Profiles">
+      <button class="iconbtn" id="gear" type="button" aria-label="Names and photos">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"
           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="12" cy="12" r="3" />
@@ -1566,7 +444,7 @@
         </svg>
       </button>
       <h1 id="barTitle">Couple Calendar</h1>
-      <button class="iconbtn flat" id="themeBtn" type="button" aria-label="Toggle Light/Dark Theme">
+      <button class="iconbtn flat" id="themeBtn" type="button" aria-label="Toggle light or dark theme">
         <svg id="themeIcon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
           stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="12" cy="12" r="5" />
@@ -1576,40 +454,19 @@
       </button>
     </header>
 
-    <!-- Locked Session Status Bar -->
-    <div class="sess-bar" id="sessionBar">
-      <div class="sess-info">
-        <span class="sess-dot" id="sessDot" title="Syncing in real-time"></span>
-        <span class="sess-label" id="sessActiveLabel">You: <strong>Shreya</strong></span>
-      </div>
-      <div class="sess-actions">
-        <button type="button" class="sess-btn share" id="sessShareBtn"
-          title="Share direct invite link with your partner">
-          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-          </svg>
-          <span id="sessShareText">Invite Partner</span>
-        </button>
-      </div>
-    </div>
-
     <main>
       <section id="viewHome" aria-label="Home">
-        <!-- Personalized Greeting Banner -->
         <div class="home-hero">
           <div class="greeting-wrap">
             <span class="greeting-eyebrow">Our Sanctuary</span>
-            <h2 class="greeting-title" id="greetingTitle">Good evening, Shreya</h2>
-            <p class="greeting-subtitle" id="greetingSubtitle">Your private plans with Reejan</p>
+            <h2 class="greeting-title" id="greetingTitle">Good evening</h2>
+            <p class="greeting-subtitle" id="greetingSubtitle">Your private plans together</p>
           </div>
         </div>
 
-        <!-- Prominent Reunion Countdown Card -->
         <div class="countwrap">
           <section class="countcard" id="countCard" role="button" tabindex="0"
-            aria-label="Next reunion date. Tap for details" style="cursor:pointer">
+            aria-label="Next date. Tap for details" style="cursor:pointer">
             <div class="countcard-watermark" aria-hidden="true">
               <svg viewBox="0 0 24 24" width="115" height="115" fill="currentColor">
                 <path
@@ -1629,7 +486,6 @@
           </section>
         </div>
 
-        <!-- Couple Sanctuary Card -->
         <section class="couple" aria-label="The couple">
           <button class="person" type="button" id="personA" aria-label="First partner">
             <span class="person-avatar-wrap"><span id="avA"></span></span>
@@ -1650,7 +506,6 @@
           </button>
         </section>
 
-        <!-- Upcoming Plans Timeline Section -->
         <div class="sechead">
           <div class="sechead-title-group">
             <h2>Our Plans Together</h2>
@@ -1661,7 +516,6 @@
         <ul class="timeline" id="upList"></ul>
       </section>
 
-      <!-- Calendar View -->
       <section id="viewCal" aria-label="Calendar" hidden>
         <section class="monthcard">
           <div class="mhead">
@@ -1678,13 +532,7 @@
               </svg></button>
           </div>
           <div class="dow">
-            <div>Mon</div>
-            <div>Tue</div>
-            <div>Wed</div>
-            <div>Thu</div>
-            <div>Fri</div>
-            <div>Sat</div>
-            <div>Sun</div>
+            <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
           </div>
           <div class="mgrid" id="grid"></div>
         </section>
@@ -1694,7 +542,6 @@
     </main>
   </div>
 
-  <!-- Floating Action Button -->
   <div class="addwrap" id="addWrap" hidden>
     <button class="addbtn" id="addBtn" type="button">
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"
@@ -1705,7 +552,6 @@
     </button>
   </div>
 
-  <!-- Bottom Navigation Bar -->
   <nav class="tabs" aria-label="Main Navigation">
     <button class="tab" id="tabHome" type="button" aria-current="page">
       <div class="tab-indicator">
@@ -1730,7 +576,7 @@
 
   <div class="scrim" id="scrim" hidden></div>
 
-  <!-- Profile & Settings Sheet -->
+  <!-- Names & Photos -->
   <section class="sheet" id="sheetProfile" role="dialog" aria-modal="true" aria-labelledby="pfTitle" hidden>
     <div class="grab"></div>
     <div class="shead">
@@ -1746,14 +592,10 @@
       <p class="err" id="pfErr" role="alert" hidden></p>
       <div class="btnrow"><button class="btn primary grow" id="pfSave" type="button">Save Profile</button><button
           class="btn" type="button" data-close>Cancel</button></div>
-      <div style="border-top: 1px solid var(--line); margin-top: 10px; padding-top: 14px;">
-        <button type="button" class="btn danger grow" id="btnResetDevice" style="width: 100%;">Reset This Device
-          Session</button>
-      </div>
     </div>
   </section>
 
-  <!-- Personal Date Planning Form Sheet -->
+  <!-- Plan / edit a date -->
   <section class="sheet" id="sheetEvent" role="dialog" aria-modal="true" aria-labelledby="evFormTitle" hidden>
     <div class="grab"></div>
     <div class="shead">
@@ -1764,7 +606,6 @@
         </svg></button>
     </div>
     <form id="evForm" novalidate>
-      <!-- Title & Quick Idea Chips -->
       <div class="field">
         <label class="flabel" for="fTitle">What are we doing?</label>
         <input type="text" id="fTitle" maxlength="120" placeholder="e.g. Sunset drinks, Cozy pasta night"
@@ -1778,7 +619,6 @@
         </div>
       </div>
 
-      <!-- Date & Quick Date Chips -->
       <div class="field">
         <label class="flabel" for="fDate">When?</label>
         <input type="date" id="fDate">
@@ -1793,7 +633,6 @@
       <label class="switchrow" for="fAllDay"><span>All Day Date</span><input type="checkbox" class="switch" id="fAllDay"
           role="switch"></label>
 
-      <!-- Times & Quick Time Chips -->
       <div class="field" id="timeRowWrapper">
         <div class="row2" id="timeRow">
           <div class="field"><label class="flabel" for="fStart">Starts</label><input type="time" id="fStart"></div>
@@ -1819,7 +658,7 @@
     </form>
   </section>
 
-  <!-- Event Detail Sheet (Romantic & Action-Safe) -->
+  <!-- Date details -->
   <section class="sheet" id="sheetDetail" role="dialog" aria-modal="true" aria-labelledby="dtTitle" hidden>
     <div class="grab"></div>
     <div class="shead">
@@ -1830,24 +669,24 @@
         </svg></button>
     </div>
     <div class="stack">
-      <!-- Status & Personal Message -->
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="pill" id="dtPill"></span></div>
       <div class="evpersonal-msg" id="dtPersonalBanner" style="font-size: 1rem; padding: 4px 0;"></div>
       <p class="dtmeta" id="dtWhen" style="font-weight: 600; font-size: 0.98rem; margin: 0;"></p>
       <p class="dtnote" id="dtNote" hidden></p>
 
-      <!-- Accept / Decline: ONLY visible if partner proposed it and it is pending -->
+      <!-- Accept / Decline: ONLY for the person who was asked (not the one who proposed) -->
       <div class="btnrow" id="dtAnswer" hidden>
         <button class="btn primary grow" id="dtAccept" type="button">Accept 💕</button>
         <button class="btn grow" id="dtDecline" type="button">Decline</button>
       </div>
 
-      <!-- Edit & Delete: ONLY visible to creator, or if already accepted/declined -->
-      <div class="btnrow" id="dtActions">
+      <!-- Edit / Cancel: ONLY for the person who proposed it, or either of you once it is accepted -->
+      <div class="btnrow" id="dtActions" hidden>
         <button class="btn grow" id="dtEdit" type="button">Edit Date</button>
         <button class="btn danger grow" id="dtDelete" type="button">Cancel Date</button>
       </div>
 
+      <!-- Only appears after tapping "Cancel Date" -->
       <div id="dtConfirm" hidden class="stack">
         <p class="formnote" style="color: var(--danger); font-weight: 600;">Are you sure you want to cancel this date?
         </p>
@@ -1859,58 +698,78 @@
     </div>
   </section>
 
-  <!-- Quick Start / Setup Sheet (First time device claim) -->
+  <!-- First-time setup: pick who you are (locks this phone) -->
   <section class="sheet" id="sheetSetup" role="dialog" aria-modal="true" aria-labelledby="setupTitle" hidden>
     <div class="grab"></div>
     <div class="shead">
       <h2 id="setupTitle">Welcome to Couple Calendar ❤️</h2>
     </div>
     <div class="stack">
-      <p class="formnote" style="font-size: 0.95rem;">Who is using this phone? We will lock this device to your identity
-        so you and your partner have your own private experience.</p>
+      <p class="formnote" id="setupMsg" style="font-size: 0.95rem;">Who is using this phone? Once you confirm, this
+        phone is locked to you and nobody else can pick your spot.</p>
       <div class="setup-cards">
         <button type="button" class="setup-card" id="setupCardB" data-user="u_you">
           <span class="setup-badge">SELECTED</span>
           <div class="avatar" id="setupAvB"></div>
           <span class="setup-card-name" id="setupNameB">Shreya</span>
-          <span class="setup-card-sub">I am Shreya</span>
+          <span class="setup-card-sub" id="setupSubB">I am Shreya</span>
         </button>
         <button type="button" class="setup-card" id="setupCardA" data-user="u_her">
           <span class="setup-badge">SELECTED</span>
           <div class="avatar" id="setupAvA"></div>
           <span class="setup-card-name" id="setupNameA">Reejan</span>
-          <span class="setup-card-sub">I am Reejan</span>
+          <span class="setup-card-sub" id="setupSubA">I am Reejan</span>
         </button>
       </div>
+      <p class="err" id="setupErr" role="alert" hidden></p>
       <div class="btnrow">
-        <button type="button" class="btn primary grow" id="btnConfirmSetup"
-          style="font-size: 1.05rem; height: 52px;">Confirm & Lock My Device</button>
+        <button type="button" class="btn primary grow" id="btnConfirmSetup" disabled
+          style="font-size: 1.05rem; height: 52px;">Confirm & Lock My Phone</button>
       </div>
     </div>
   </section>
 
+  <!-- Entry code (first time on a phone) -->
+  <section class="sheet" id="sheetCode" role="dialog" aria-modal="true" aria-labelledby="codeTitle" hidden>
+    <div class="grab"></div>
+    <div class="shead">
+      <h2 id="codeTitle">Enter your entry code 🔒</h2>
+    </div>
+    <form id="codeForm" novalidate>
+      <p class="formnote" style="font-size: 0.95rem;">This calendar is private. Enter the code you and your partner
+        share to continue. You only need to do this once on each phone.</p>
+      <div class="field">
+        <label class="flabel" for="codeInput">Entry code</label>
+        <input type="password" id="codeInput" autocomplete="off" autocapitalize="off" spellcheck="false"
+          maxlength="64" placeholder="Entry code">
+      </div>
+      <p class="err" id="codeErr" role="alert" hidden></p>
+      <button type="submit" class="btn primary grow" id="btnCode" style="height: 52px; font-size: 1.05rem;">Unlock</button>
+    </form>
+  </section>
+
   <div class="toast" id="toast" role="status" hidden></div>
 
-  <!-- CORE DATA & TWO-SESSION PROVIDER -->
+  <!-- ===================================================================
+       DATA LAYER: local store + Firebase sync + locked two-person claims
+       =================================================================== -->
   <script>
     (function () {
       "use strict";
 
-      var USER_A = "u_her";  // Shreya
-      var USER_B = "u_you";  // Reejan
+      var USER_A = "u_her";  // Reejan
+      var USER_B = "u_you";  // Shreya
 
-      // Check URL parameters for direct device setup link (e.g. ?setup=Reejan or ?user=a)
-      var urlParams = new URLSearchParams(window.location.search);
-      var param = (urlParams.get("setup") || urlParams.get("user") || "").toLowerCase().trim();
-      if (param === "a" || param === "Reejan" || param === "her" || param === "u_her" || param === "1") {
-        localStorage.setItem("couple_device_user", USER_A);
-      } else if (param === "b" || param === "Shreya" || param === "you" || param === "u_you" || param === "2") {
-        localStorage.setItem("couple_device_user", USER_B);
+      function safeGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+      function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { } }
+
+      // Local-only mode (no Firebase) identifies this browser with a random id.
+      var deviceId = safeGet("couple_device_id");
+      if (!deviceId) {
+        deviceId = "d_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+        safeSet("couple_device_id", deviceId);
       }
 
-      var myUserId = localStorage.getItem("couple_device_user");
-
-      // Clean empty store (no mock events)
       var defaultStore = {
         "couple/profile": {
           a: { name: "Reejan", img: "" },
@@ -1924,26 +783,29 @@
           var raw = localStorage.getItem(LOCAL_KEY);
           if (raw) {
             var parsed = JSON.parse(raw);
-            // Purge old mock preview events if present
             Object.keys(parsed).forEach(function (k) {
-              if (["events/e1", "events/e2", "events/e3", "events/e4", "events/e5", "events/e6"].indexOf(k) >= 0) {
-                delete parsed[k];
-              }
+              if (["events/e1", "events/e2", "events/e3", "events/e4", "events/e5", "events/e6"].indexOf(k) >= 0) delete parsed[k];
             });
             return parsed;
           }
         } catch (e) { }
         return null;
       }
-      function saveLocalStore(s) {
-        try { localStorage.setItem(LOCAL_KEY, JSON.stringify(s)); } catch (e) { }
-      }
+      function saveLocalStore(s) { try { localStorage.setItem(LOCAL_KEY, JSON.stringify(s)); } catch (e) { } }
 
       var store = loadLocalStore() || defaultStore;
       var subs = [];
+      var errSubs = [];
+      var phaseSubs = [];
+      var lastErrAt = 0;
 
-      function notify() {
-        subs.forEach(function (s) { try { s(); } catch (e) { } });
+      function notify() { subs.forEach(function (s) { try { s(); } catch (e) { } }); }
+      function notifyPhase() { phaseSubs.forEach(function (f) { try { f(); } catch (e) { } }); }
+      function emitErr(msg) {
+        var now = Date.now();
+        if (now - lastErrAt < 4000) return;
+        lastErrAt = now;
+        errSubs.forEach(function (f) { try { f(msg); } catch (e) { } });
       }
 
       function merge(a, b) {
@@ -1954,104 +816,179 @@
         return o;
       }
 
-      // Cross-Tab Instant Sync
+      function withTimeout(p, ms) {
+        return Promise.race([p, new Promise(function (_, rej) { setTimeout(function () { rej(new Error("timeout")); }, ms); })]);
+      }
+      // Wait for the server, but if the connection is down (write queued offline) don't freeze the UI.
+      function settle(p) {
+        return Promise.race([p, new Promise(function (res) { setTimeout(res, 8000); })]);
+      }
+
+      /* ------------------------------------------------------------------
+         PHASES:  loading -> code (needs entry code) -> pick (choose Reejan/Shreya) -> ready
+                  error  (could not sign in / reach the server)
+         ------------------------------------------------------------------ */
+      var fbDb = null, fbAuth = null;
+      var isFirebaseActive = false;
+      var authUid = null;
+      var hasEntry = false, gotSpots = false, gotEntry = false;
+      var failed = "";
+      var dataAttached = false;
+      var phase = "loading";
+      var readyResolve;
+      var readyPromise = new Promise(function (res) { readyResolve = res; });
+
+      function selfId() { return isFirebaseActive ? authUid : deviceId; }
+      function spots() { return store["couple/spots"] || {}; }
+      function mySpot() {
+        var s = spots(), me = selfId();
+        if (!me) return null;
+        if (s[USER_A] === me) return USER_A;
+        if (s[USER_B] === me) return USER_B;
+        return null;
+      }
+
+      function computePhase() {
+        if (!isFirebaseActive) phase = mySpot() ? "ready" : "pick";
+        else if (failed) phase = "error";
+        else if (!(gotSpots && gotEntry)) phase = "loading";
+        else if (mySpot()) phase = "ready";
+        else if (hasEntry) phase = "pick";
+        else phase = "code";
+
+        if (phase === "ready" && !dataAttached) attachData();
+        if (phase !== "loading") readyResolve();
+        notifyPhase();
+      }
+      function fail(msg) { failed = msg; computePhase(); }
+
       var channel = null;
       try {
         channel = new BroadcastChannel("couple_calendar_clean_channel");
         channel.onmessage = function (ev) {
-          if (ev.data && ev.data.store) {
+          if (ev.data && ev.data.store && !isFirebaseActive) {
             store = ev.data.store;
             saveLocalStore(store);
+            computePhase();
             notify();
           }
         };
       } catch (e) { }
 
-      // Firebase Realtime Cloud Sync
-      var fbDb = null;
-      var isFirebaseActive = false;
+      /* Cloud data (profile + events) is only loaded AFTER this phone is unlocked and holds a spot. */
+      function attachData() {
+        dataAttached = true;
+        if (!isFirebaseActive || !fbDb) return;
+
+        fbDb.ref("couple/profile").on("value", function (snap) {
+          var val = snap.val();
+          if (val) {
+            store["couple/profile"] = val;
+            saveLocalStore(store);
+            notify();
+          } else {
+            fbDb.ref("couple/profile").set(defaultStore["couple/profile"]).catch(function () { });
+          }
+        }, function () { emitErr("Can't read from the cloud. Check the Firebase rules."); });
+
+        fbDb.ref("events").on("value", function (snap) {
+          var val = snap.val();
+          Object.keys(store).forEach(function (k) { if (k.indexOf("events/") === 0) delete store[k]; });
+          if (val && Object.keys(val).length) {
+            Object.keys(val).forEach(function (k) {
+              if (["e1", "e2", "e3", "e4", "e5", "e6"].indexOf(k) < 0) store["events/" + k] = val[k];
+              else fbDb.ref("events/" + k).remove().catch(function () { });
+            });
+          }
+          saveLocalStore(store);
+          notify();
+        }, function () { emitErr("Can't read dates from the cloud. Check the Firebase rules."); });
+      }
+
+      function listenGate(uid) {
+        fbDb.ref("couple/spots").on("value", function (snap) {
+          store["couple/spots"] = snap.val() || {};
+          gotSpots = true;
+          computePhase();
+          notify();
+        }, function () { fail("Couldn't read from the server. Check the Firebase rules."); });
+
+        fbDb.ref("couple/entry/" + uid).on("value", function (snap) {
+          hasEntry = snap.exists();
+          gotEntry = true;
+          computePhase();
+        }, function () { fail("Couldn't read from the server. Check the Firebase rules."); });
+      }
+
       if (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey && window.firebase) {
+        isFirebaseActive = true;
         try {
           var config = Object.assign({}, window.FIREBASE_CONFIG);
           if (!config.databaseURL && config.projectId) {
             config.databaseURL = "https://" + config.projectId + "-default-rtdb.firebaseio.com";
           }
-          if (!firebase.apps.length) {
-            firebase.initializeApp(config);
-          }
+          if (!firebase.apps.length) firebase.initializeApp(config);
+          if (!firebase.auth) throw new Error("auth-missing");
           fbDb = firebase.database();
-          isFirebaseActive = true;
+          fbAuth = firebase.auth();
 
-          // Sync Profile
-          fbDb.ref("couple/profile").on("value", function (snap) {
-            var val = snap.val();
-            if (val) {
-              store["couple/profile"] = val;
-              saveLocalStore(store);
-              notify();
-            } else {
-              fbDb.ref("couple/profile").set(defaultStore["couple/profile"]);
-            }
+          // Never show cached cloud data to a phone that hasn't unlocked yet.
+          Object.keys(store).forEach(function (k) {
+            if (k.indexOf("events/") === 0 || k === "couple/spots" || k === "couple/claims") delete store[k];
           });
 
-          // Sync Events
-          fbDb.ref("events").on("value", function (snap) {
-            var val = snap.val();
-            Object.keys(store).forEach(function (k) { if (k.indexOf("events/") === 0) delete store[k]; });
-            if (val && Object.keys(val).length) {
-              Object.keys(val).forEach(function (k) {
-                if (["e1", "e2", "e3", "e4", "e5", "e6"].indexOf(k) < 0) {
-                  store["events/" + k] = val[k];
-                } else {
-                  fbDb.ref("events/" + k).remove();
-                }
+          fbAuth.onAuthStateChanged(function (user) {
+            if (user) {
+              if (authUid !== user.uid) { authUid = user.uid; listenGate(user.uid); }
+            } else {
+              fbAuth.signInAnonymously().catch(function (e) {
+                fail(e && e.code === "auth/operation-not-allowed"
+                  ? "Anonymous sign-in is switched off in Firebase (Authentication > Sign-in method)."
+                  : "Couldn't sign in. Check your connection and reload.");
               });
             }
-            saveLocalStore(store);
-            notify();
           });
+          setTimeout(function () { if (phase === "loading") fail("Couldn't reach the server. Check your connection and reload."); }, 10000);
         } catch (e) {
-          console.warn("Firebase sync error:", e);
+          console.warn("Firebase start error:", e);
+          fail(e && e.message === "auth-missing"
+            ? "Firebase Auth didn't load. Check the firebase-auth script tag in index.html."
+            : "Couldn't start Firebase. Reload and try again.");
         }
+      } else {
+        computePhase(); // local-only mode
       }
 
       function mutateSync(action, path, value) {
         saveLocalStore(store);
-        if (channel) {
-          try { channel.postMessage({ type: "sync", store: store }); } catch (e) { }
-        }
+        if (channel) { try { channel.postMessage({ type: "sync", store: store }); } catch (e) { } }
         if (isFirebaseActive && fbDb) {
           try {
-            if (action === "set" || action === "add") fbDb.ref(path).set(value);
-            else if (action === "update") fbDb.ref(path).update(value);
-            else if (action === "delete") fbDb.ref(path).remove();
-          } catch (e) { }
+            var r = fbDb.ref(path);
+            if (action === "set" || action === "add") return settle(r.set(value));
+            if (action === "update") return settle(r.update(value));
+            if (action === "delete") return settle(r.remove());
+          } catch (e) { return Promise.reject(e); }
         }
+        return Promise.resolve();
+      }
+
+      function snapD(p) {
+        return { id: p.split("/").pop(), exists: p in store, data: function () { return store[p]; } };
       }
 
       function docRef(p) {
         return {
           get: function () { return Promise.resolve(snapD(p)); },
-          set: function (o) { store[p] = o; mutateSync("set", p, o); notify(); return Promise.resolve(); },
-          update: function (o) { store[p] = merge(store[p] || {}, o); mutateSync("update", p, o); notify(); return Promise.resolve(); },
-          delete: function () { delete store[p]; mutateSync("delete", p, null); notify(); return Promise.resolve(); },
+          set: function (o) { store[p] = o; var pr = mutateSync("set", p, o); notify(); return pr; },
+          update: function (o) { store[p] = merge(store[p] || {}, o); var pr = mutateSync("update", p, o); notify(); return pr; },
+          delete: function () { delete store[p]; var pr = mutateSync("delete", p, null); notify(); return pr; },
           onSnapshot: function (fn) {
             var s = function () { fn(snapD(p)); };
             subs.push(s);
             setTimeout(s, 0);
-            return function () {
-              var idx = subs.indexOf(s);
-              if (idx >= 0) subs.splice(idx, 1);
-            };
+            return function () { var idx = subs.indexOf(s); if (idx >= 0) subs.splice(idx, 1); };
           }
-        };
-      }
-
-      function snapD(p) {
-        return {
-          id: p.split("/").pop(),
-          exists: p in store,
-          data: function () { return store[p]; }
         };
       }
 
@@ -2060,17 +997,13 @@
           doc: function (id) { return docRef(c + "/" + id); },
           add: function (o) {
             var newId;
-            if (isFirebaseActive && fbDb) {
-              var pushRef = fbDb.ref(c).push();
-              newId = pushRef.key;
-            } else {
-              newId = "ev_" + Date.now().toString(36) + "_" + Math.random().toString(36).substr(2, 4);
-            }
+            if (isFirebaseActive && fbDb) newId = fbDb.ref(c).push().key;
+            else newId = "ev_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 6);
             var p = c + "/" + newId;
             store[p] = o;
-            mutateSync("add", p, o);
+            var pr = mutateSync("add", p, o);
             notify();
-            return Promise.resolve({ id: newId });
+            return pr.then(function () { return { id: newId }; });
           },
           onSnapshot: function (fn) {
             var s = function () {
@@ -2081,34 +1014,41 @@
             };
             subs.push(s);
             setTimeout(s, 0);
-            return function () {
-              var idx = subs.indexOf(s);
-              if (idx >= 0) subs.splice(idx, 1);
-            };
+            return function () { var idx = subs.indexOf(s); if (idx >= 0) subs.splice(idx, 1); };
           }
         };
       }
 
-      function getProfileNames() {
-        var prof = store["couple/profile"] || {};
-        var nameA = (prof.a && prof.a.name) ? prof.a.name.trim() : "Reejan";
-        var nameB = (prof.b && prof.b.name) ? prof.b.name.trim() : "Shreya";
-        return { a: nameA, b: nameB };
+      function otherOf(id) { return id === USER_A ? USER_B : USER_A; }
+
+      // Resolves true only if this phone now holds the spot. First come, first served; can't be taken over.
+      function tryClaim(spot) {
+        var me = selfId(), c = spots();
+        if (!me) return Promise.resolve(false);
+        if (c[spot] === me) return Promise.resolve(true);
+        if (c[spot]) return Promise.resolve(false);
+        if (c[otherOf(spot)] === me) return Promise.resolve(false);
+        if (isFirebaseActive) {
+          if (!fbDb || !hasEntry) return Promise.resolve(false); // need the entry code first
+          return withTimeout(
+            fbDb.ref("couple/spots/" + spot).transaction(function (cur) {
+              if (cur === null || cur === undefined) return me;
+              return undefined; // abort: already taken
+            }, undefined, false), 8000
+          ).then(function (res) {
+            return !!(res.committed && res.snapshot && res.snapshot.val() === me);
+          });
+        }
+        var upd = {}; upd[spot] = me;
+        store["couple/spots"] = merge(store["couple/spots"] || {}, upd);
+        mutateSync("local", "", null);
+        computePhase();
+        return Promise.resolve(true);
       }
 
       var userApi = {
-        id: function () { return Promise.resolve(myUserId || USER_B); },
-        can: function () { return Promise.resolve(true); },
-        profiles: function (ids) {
-          var names = getProfileNames();
-          var out = {};
-          ids.forEach(function (i) {
-            var isMe = (i === myUserId);
-            var name = (i === USER_A) ? names.a : (i === USER_B ? names.b : "Partner");
-            out[i] = { id: i, name: name, isMe: isMe };
-          });
-          return Promise.resolve(out);
-        }
+        id: function () { return Promise.resolve(mySpot()); },
+        can: function () { return Promise.resolve(true); }
       };
 
       window.claude = {
@@ -2122,28 +1062,39 @@
       window.coupleApp = {
         USER_A: USER_A,
         USER_B: USER_B,
-        getMyUserId: function () { return myUserId; },
-        isClaimed: function () { return !!myUserId; },
-        claimDevice: function (id) {
-          myUserId = id;
-          localStorage.setItem("couple_device_user", id);
-          window.location.reload();
+        isClaimed: function () { return !!mySpot(); },
+        getMyUserId: mySpot,
+        getClaims: spots,
+        getPhase: function () { return phase; },
+        getStatus: function () { return phase === "error" ? "error" : "ok"; },
+        getErrorMsg: function () { return failed; },
+        onClaims: function (fn) { phaseSubs.push(fn); },
+        onSyncError: function (fn) { errSubs.push(fn); },
+        ready: function () { return readyPromise; },
+        // Writes the entry code; Firebase rules accept it only if it matches the secret.
+        submitCode: function (code) {
+          if (!isFirebaseActive) return Promise.resolve();
+          if (!fbDb || !authUid) return Promise.reject(new Error("network"));
+          return withTimeout(fbDb.ref("couple/entry/" + authUid).set(String(code).trim()), 8000).then(function () { }, function (e) {
+            throw new Error(e && e.message === "timeout" ? "network" : "wrong");
+          });
         },
-        resetDevice: function () {
-          localStorage.removeItem("couple_device_user");
-          window.location.reload();
-        },
-        getPartnerInviteLink: function () {
-          var partnerUser = (myUserId === USER_B) ? "a" : "b";
-          var origin = window.location.origin;
-          var path = window.location.pathname;
-          return origin + path + "?setup=" + partnerUser;
+        claimDevice: function (userId) {
+          if (userId !== USER_A && userId !== USER_B) return Promise.reject(new Error("invalid"));
+          var mine = mySpot();
+          if (mine && mine !== userId) return Promise.reject(new Error("locked"));
+          return tryClaim(userId).then(function (ok) {
+            if (!ok) throw new Error("taken");
+            window.location.reload();
+          });
         }
       };
     })();
   </script>
 
-  <!-- APPLICATION CONTROLLER -->
+  <!-- ===================================================================
+       APPLICATION CONTROLLER
+       =================================================================== -->
   <script>
     (function () {
       "use strict";
@@ -2164,7 +1115,7 @@
       var state = {
         tab: "home", year: 0, month: 0, selected: today(),
         events: [], profile: { a: { name: "Reejan", img: "" }, b: { name: "Shreya", img: "" } }, profileExists: false,
-        people: {}, myId: null, canWrite: true, hasDb: true, evCol: null, profRef: null,
+        myId: null, evCol: null, profRef: null,
         editingId: null, detailId: null, saving: false, draft: null
       };
       (function () { var n = new Date(); state.year = n.getFullYear(); state.month = n.getMonth(); })();
@@ -2191,14 +1142,25 @@
           (a.start || "").localeCompare(b.start || "") || a.title.localeCompare(b.title);
       }
 
+      /* ---------- permission rules (single source of truth) ----------
+         isMine      : I am the one who proposed / last changed this date
+         canAnswer   : someone ELSE asked me, and it is still pending  -> Accept / Decline
+         canManage   : I asked for it (edit / cancel), or it's accepted (either of us can edit / cancel)
+         Nobody can answer their own request, and nobody asked can edit or cancel it. */
       function isMine(ev) { return !!state.myId && ev.by === state.myId; }
-      function canAnswer(ev) { return ev.status === "pending" && !isMine(ev); }
+      function canAnswer(ev) { return !!state.myId && ev.status === "pending" && ev.by !== state.myId; }
+      function canManage(ev) { return !!state.myId && (ev.by === state.myId || ev.status === "accepted"); }
 
+      function nameOf(key, fallback) { return (state.profile[key].name || "").trim() || fallback; }
       function getMyName() {
-        return (state.myId === window.coupleApp.USER_A) ? (state.profile.a.name || "Reejan") : (state.profile.b.name || "Shreya");
+        if (state.myId === window.coupleApp.USER_A) return nameOf("a", "Reejan");
+        if (state.myId === window.coupleApp.USER_B) return nameOf("b", "Shreya");
+        return "";
       }
       function getPartnerName() {
-        return (state.myId === window.coupleApp.USER_A) ? (state.profile.b.name || "Shreya") : (state.profile.a.name || "Reejan");
+        if (state.myId === window.coupleApp.USER_A) return nameOf("b", "Shreya");
+        if (state.myId === window.coupleApp.USER_B) return nameOf("a", "Reejan");
+        return "your partner";
       }
 
       function cleanP(o) {
@@ -2219,18 +1181,17 @@
         return s;
       }
 
-      /* Toast Notification */
       var toastTimer = null;
       function toast(msg) {
         var t = $("toast"); t.textContent = msg; t.hidden = false;
         clearTimeout(toastTimer);
-        toastTimer = setTimeout(function () { t.hidden = true; }, 3200);
+        toastTimer = setTimeout(function () { t.hidden = true; }, 3600);
       }
 
-      /* Theme Management */
+      /* Theme */
       function applyTheme(theme) {
         document.documentElement.setAttribute("data-theme", theme);
-        localStorage.setItem("couple_theme", theme);
+        try { localStorage.setItem("couple_theme", theme); } catch (e) { }
         var icon = $("themeIcon");
         if (theme === "dark") {
           icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
@@ -2239,10 +1200,9 @@
         }
       }
       function initTheme() {
-        var saved = localStorage.getItem("couple_theme");
-        if (!saved) {
-          saved = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-        }
+        var saved = null;
+        try { saved = localStorage.getItem("couple_theme"); } catch (e) { }
+        if (!saved) saved = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
         applyTheme(saved);
         $("themeBtn").addEventListener("click", function () {
           var current = document.documentElement.getAttribute("data-theme") || "light";
@@ -2250,38 +1210,19 @@
         });
       }
 
-      /* Personalized Greeting */
+      /* Greeting & labels */
       function renderGreeting() {
         var hour = new Date().getHours();
         var timeWord = hour < 12 ? "Good morning" : (hour < 18 ? "Good afternoon" : "Good evening");
         var myName = getMyName();
-        var partnerName = getPartnerName();
-
-        var titleEl = $("greetingTitle");
-        if (titleEl) titleEl.textContent = timeWord + ", " + myName;
-
-        var subEl = $("greetingSubtitle");
-        if (subEl) subEl.textContent = "Your private sanctuary with " + partnerName;
-
-        var sessLabel = $("sessActiveLabel");
-        if (sessLabel) sessLabel.innerHTML = "You: <strong>" + myName + "</strong>";
-
-        var sessShare = $("sessShareText");
-        if (sessShare) sessShare.textContent = "Invite " + partnerName;
-
-        var roleA = $("roleA");
-        if (roleA) roleA.textContent = (state.myId === window.coupleApp.USER_A) ? "You" : "Partner";
-        var roleB = $("roleB");
-        if (roleB) roleB.textContent = (state.myId === window.coupleApp.USER_B) ? "You" : "Partner";
-
-        var fSave = $("fSave");
-        if (fSave) fSave.textContent = "Ask " + partnerName + " 💕";
-
-        var fNoteInfo = $("fNoteInfo");
-        if (fNoteInfo) fNoteInfo.textContent = partnerName + " will see this proposal and can say yes!";
+        $("greetingTitle").textContent = myName ? timeWord + ", " + myName : timeWord;
+        $("greetingSubtitle").textContent = state.myId ? "Your private sanctuary with " + getPartnerName() : "Your private plans together";
+        $("roleA").textContent = (state.myId === window.coupleApp.USER_A) ? "You" : "Partner";
+        $("roleB").textContent = (state.myId === window.coupleApp.USER_B) ? "You" : "Partner";
+        if (!state.editingId) $("fSave").textContent = "Ask " + getPartnerName() + " 💕";
+        $("fNoteInfo").textContent = getPartnerName() + " will see this proposal and can say yes!";
       }
 
-      /* Countdown Calculation */
       function renderCountdown() {
         var t = today();
         var next = state.events.filter(function (e) { return e.status === "accepted" && e.date >= t; }).sort(cmp)[0];
@@ -2290,7 +1231,7 @@
         state.nextId = next ? next.id : null;
 
         if (!next) {
-          if (eyebrow) eyebrow.textContent = "Our Reunion";
+          eyebrow.textContent = "Our Reunion";
           num.textContent = "No plans yet"; num.className = "big word";
           label.textContent = "Plan something memorable for your visit 💕";
           title.textContent = ""; when.textContent = ""; plan.hidden = false;
@@ -2298,7 +1239,7 @@
         }
 
         plan.hidden = true;
-        if (eyebrow) eyebrow.textContent = "Next Reunion Date";
+        eyebrow.textContent = "Next Reunion Date";
         var days = Math.round((parseYmd(next.date) - parseYmd(t)) / 86400000);
         if (days === 0) { num.textContent = "Today"; num.className = "big word"; label.textContent = "Enjoy every second together! 💕"; }
         else if (days === 1) { num.textContent = "Tomorrow"; num.className = "big word"; label.textContent = "Almost time! 💕"; }
@@ -2320,17 +1261,17 @@
         });
       }
 
-      /* Personal, Romantic Event Cards */
+      /* Event card */
       function evCard(ev) {
         var wrap = el("div", "evwrap");
-        var isIncomingPending = (ev.status === "pending" && !isMine(ev));
-        var card = el("div", "evcard " + ev.status + (isIncomingPending ? " pending-incoming" : ""));
+        var incoming = canAnswer(ev);
+        var card = el("div", "evcard " + ev.status + (incoming ? " pending-incoming" : ""));
         card.tabIndex = 0; card.setAttribute("role", "button");
 
         var cardHead = el("div", "evcard-header");
         var pill = el("span", "pill " + ev.status);
         if (ev.status === "accepted") pill.textContent = "Accepted 💕";
-        else if (ev.status === "pending") pill.textContent = isMine(ev) ? "Waiting for Partner" : "New Date Proposal! 💌";
+        else if (ev.status === "pending") pill.textContent = incoming ? "New Date Proposal! 💌" : "Waiting for " + getPartnerName();
         else pill.textContent = "Declined";
         cardHead.appendChild(pill);
 
@@ -2348,25 +1289,22 @@
         cardBody.appendChild(main);
         card.appendChild(cardBody);
 
-        var msgBanner = el("div", "evpersonal-msg");
         if (ev.status === "pending") {
-          if (!isMine(ev)) {
-            msgBanner.innerHTML = "💌 " + getPartnerName() + " wants to take you on a date!";
-          } else {
-            msgBanner.className = "evpersonal-msg waiting";
-            msgBanner.textContent = "✨ You proposed this. Waiting for " + getPartnerName() + " to say yes!";
-          }
-          card.appendChild(msgBanner);
+          var msg = el("div", "evpersonal-msg" + (incoming ? "" : " waiting"));
+          msg.textContent = incoming
+            ? "💌 " + getPartnerName() + " wants to take you on a date!"
+            : "✨ You asked " + getPartnerName() + ". Waiting for them to say yes!";
+          card.appendChild(msg);
         } else if (ev.status === "accepted") {
-          msgBanner.innerHTML = "💕 It's a date! You and " + getPartnerName() + " are going.";
-          card.appendChild(msgBanner);
+          card.appendChild(el("div", "evpersonal-msg", "💕 It's a date! You and " + getPartnerName() + " are going."));
         }
 
         card.addEventListener("click", function () { openDetail(ev.id); });
         card.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openDetail(ev.id); } });
         wrap.appendChild(card);
 
-        if (canAnswer(ev)) {
+        // Accept / Decline appear ONLY for the person who was asked
+        if (incoming) {
           var row = el("div", "answer");
           var yes = el("button", "btn primary grow", "Accept 💕"); yes.type = "button";
           yes.addEventListener("click", function () { answer(ev.id, "accepted"); });
@@ -2374,7 +1312,6 @@
           no.addEventListener("click", function () { answer(ev.id, "declined"); });
           row.appendChild(yes); row.appendChild(no); wrap.appendChild(row);
         }
-
         return wrap;
       }
 
@@ -2401,9 +1338,7 @@
       function renderUpcoming() {
         var t = today();
         var up = state.events.filter(function (e) { return e.date >= t && e.status !== "declined"; }).sort(cmp).slice(0, 10);
-        var badge = $("planCountBadge");
-        if (badge) badge.textContent = up.length ? (up.length + (up.length === 1 ? " date" : " dates")) : "";
-
+        $("planCountBadge").textContent = up.length ? (up.length + (up.length === 1 ? " date" : " dates")) : "";
         var groups = [];
         up.forEach(function (e) {
           var last = groups[groups.length - 1];
@@ -2412,7 +1347,7 @@
         buildTimeline($("upList"), groups, "No plans scheduled yet. Tap 'Plan a Date' to surprise " + getPartnerName() + "! 💕");
       }
 
-      /* Calendar Grid */
+      /* Calendar */
       function renderCalendar() {
         var grid = $("grid"); grid.textContent = "";
         var first = new Date(state.year, state.month, 1);
@@ -2461,6 +1396,7 @@
         renderCalendar();
         renderDayList();
         if (state.detailId) renderDetail();
+        if (!$("sheetSetup").hidden) renderSetup();
       }
 
       function setTab(name) {
@@ -2474,13 +1410,17 @@
         window.scrollTo(0, 0);
       }
 
-      /* Sheets / Modals */
-      var SHEETS = ["sheetProfile", "sheetEvent", "sheetDetail", "sheetSetup"];
+      /* Sheets */
+      var SHEETS = ["sheetProfile", "sheetEvent", "sheetDetail", "sheetSetup", "sheetCode"];
       function hideAll() { SHEETS.forEach(function (i) { $(i).hidden = true; }); $("scrim").hidden = true; }
-      function closeSheets() { hideAll(); state.detailId = null; document.body.style.overflow = ""; }
+      function closeSheets() {
+        // The "who are you?" screen can't be dismissed until this phone has a locked identity.
+        if ((!$("sheetSetup").hidden || !$("sheetCode").hidden) && !window.coupleApp.isClaimed()) return;
+        hideAll(); state.detailId = null; state.editingId = null; document.body.style.overflow = "";
+      }
       function showSheet(id) { hideAll(); $("scrim").hidden = false; $(id).hidden = false; document.body.style.overflow = "hidden"; $(id).scrollTop = 0; }
 
-      /* Profile Sheet with Robust Photo Upload */
+      /* Profile sheet */
       function pfError(msg) { var e = $("pfErr"); e.textContent = msg || ""; e.hidden = !msg; }
       function paintPf(k) {
         var prev = $("pfPrev" + k);
@@ -2489,12 +1429,13 @@
         if (p.img) { var im = document.createElement("img"); im.alt = ""; im.src = p.img; s.appendChild(im); } else { s.innerHTML = ICON.user; }
         prev.appendChild(s);
         var cam = el("span", "cam"); cam.innerHTML = ICON.cam; prev.appendChild(cam);
+        prev.appendChild($("pfFile" + k));
         $("pfRemove" + k).hidden = !p.img;
       }
 
       function buildProfileBlocks() {
         var wrap = $("pfBlocks"); wrap.textContent = "";
-        PK.forEach(function (k, i) {
+        PK.forEach(function (k) {
           var blk = el("div", "pfblock");
           var prev = el("label", "pfphoto"); prev.id = "pfPrev" + k;
           prev.setAttribute("aria-label", "Choose photo for " + (k === "a" ? "Reejan" : "Shreya"));
@@ -2542,6 +1483,7 @@
       }
 
       function openProfile() {
+        if (!state.myId) return;
         state.draft = { a: { name: state.profile.a.name, img: state.profile.a.img }, b: { name: state.profile.b.name, img: state.profile.b.img } };
         PK.forEach(function (k) {
           $("pfName" + k).value = state.draft[k].name;
@@ -2563,11 +1505,13 @@
         finally { state.saving = false; $("pfSave").disabled = false; }
       }
 
-      /* Date Planning Form */
+      /* Plan / edit form */
       function fErr(msg) { var e = $("fErr"); e.textContent = msg || ""; e.hidden = !msg; }
       function syncAllDay() { $("timeRowWrapper").hidden = $("fAllDay").checked; }
 
       function openEvForm(ev, defaultDate) {
+        if (!state.myId) return;
+        if (ev && !canManage(ev)) { toast("Only the person who asked can edit this date."); return; }
         state.editingId = ev ? ev.id : null;
         $("evFormTitle").textContent = ev ? "Edit Date 💕" : "Plan a Date 💕";
         $("fTitle").value = ev ? ev.title : "";
@@ -2578,13 +1522,12 @@
         $("fStart").value = ev ? (ev.start || "") : "19:00";
         $("fEnd").value = ev ? (ev.end || "") : "21:30";
         $("fNote").value = ev ? (ev.note || "") : "";
-        $("fSave").textContent = ev ? "Save & Re-confirm 💕" : ("Ask " + getPartnerName() + " 💕");
+        $("fSave").textContent = ev ? "Save & Ask Again 💕" : ("Ask " + getPartnerName() + " 💕");
         fErr(""); syncAllDay();
         showSheet("sheetEvent");
         setTimeout(function () { $("fTitle").focus(); }, 150);
       }
 
-      // Quick Chips
       $("titleChips").addEventListener("click", function (e) {
         var chip = e.target.closest(".chip");
         if (!chip) return;
@@ -2600,13 +1543,11 @@
         if (chip.hasAttribute("data-days")) {
           d.setDate(d.getDate() + Number(chip.getAttribute("data-days")));
         } else if (chip.getAttribute("data-dayname") === "Fri") {
-          var day = d.getDay();
-          var diff = (5 - day + 7) % 7 || 7;
+          var diff = (5 - d.getDay() + 7) % 7 || 7;
           d.setDate(d.getDate() + diff);
         } else if (chip.getAttribute("data-dayname") === "Sat") {
-          var day = d.getDay();
-          var diff = (6 - day + 7) % 7 || 7;
-          d.setDate(d.getDate() + diff);
+          var diff2 = (6 - d.getDay() + 7) % 7 || 7;
+          d.setDate(d.getDate() + diff2);
         }
         $("fDate").value = ymd(d);
         $("fDate").className = "";
@@ -2624,7 +1565,7 @@
 
       async function saveEvent(e) {
         e.preventDefault();
-        if (state.saving || !state.evCol) return;
+        if (state.saving || !state.evCol || !state.myId) return;
         var title = $("fTitle").value.trim();
         var date = $("fDate").value;
         var allDay = $("fAllDay").checked;
@@ -2633,15 +1574,13 @@
         var note = $("fNote").value.trim();
 
         if (!title) {
-          $("fTitle").className = "invalid";
-          $("fTitle").focus();
+          $("fTitle").className = "invalid"; $("fTitle").focus();
           return fErr("Please give your date a name 💕");
         }
         $("fTitle").className = "";
 
         if (!date || !DATE_RE.test(date)) {
-          $("fDate").className = "invalid";
-          $("fDate").focus();
+          $("fDate").className = "invalid"; $("fDate").focus();
           return fErr("Please pick a date for your plan");
         }
         $("fDate").className = "";
@@ -2650,10 +1589,16 @@
           return fErr("Start time and end time cannot be identical.");
         }
 
+        if (state.editingId) {
+          var existing = findEv(state.editingId);
+          if (!existing || !canManage(existing)) return fErr("You can't edit this date.");
+        }
+
         state.saving = true; $("fSave").disabled = true; fErr("");
         try {
           var f = { title: title, date: date, allDay: allDay, start: start, end: end, note: note };
           if (state.editingId) {
+            // Editing re-asks your partner: you become the asker, they must accept again.
             f.by = state.myId; f.status = "pending"; f.answeredBy = null;
             await state.evCol.doc(state.editingId).update(f);
           } else {
@@ -2669,9 +1614,11 @@
         } finally { state.saving = false; $("fSave").disabled = false; }
       }
 
-      /* Answer, Cancel, Detail */
+      /* Answer / cancel / detail */
       async function answer(id, status) {
         if (!state.evCol) return;
+        var ev = findEv(id);
+        if (!ev || !canAnswer(ev)) { toast("Only " + getPartnerName() + " can answer this one."); return; }
         try {
           await state.evCol.doc(id).update({ status: status, answeredBy: state.myId, answeredAt: Date.now() });
           closeSheets();
@@ -2680,6 +1627,8 @@
       }
 
       async function removeEvent(id) {
+        var ev = findEv(id);
+        if (!ev || !canManage(ev)) { toast("You can't cancel this date."); return; }
         try {
           await state.evCol.doc(id).delete();
           closeSheets();
@@ -2690,6 +1639,7 @@
       function findEv(id) { return state.events.filter(function (e) { return e.id === id; })[0]; }
 
       function openDetail(id) {
+        if (!state.myId) return;
         state.detailId = id;
         $("dtConfirm").hidden = true;
         renderDetail();
@@ -2703,24 +1653,23 @@
         $("dtTitle").textContent = ev.title;
         var pill = $("dtPill");
         pill.className = "pill " + ev.status;
-
-        var personalBanner = $("dtPersonalBanner");
-        var isIncoming = !isMine(ev);
+        var banner = $("dtPersonalBanner");
+        var incoming = canAnswer(ev);
 
         if (ev.status === "accepted") {
           pill.textContent = "Accepted 💕";
-          personalBanner.innerHTML = "🎉 It's a date! You and " + getPartnerName() + " are going.";
+          banner.textContent = "🎉 It's a date! You and " + getPartnerName() + " are going.";
         } else if (ev.status === "pending") {
-          if (isIncoming) {
+          if (incoming) {
             pill.textContent = "New Date Proposal 💌";
-            personalBanner.innerHTML = "💌 <strong>" + getPartnerName() + "</strong> wants to take you on this date!";
+            banner.textContent = "💌 " + getPartnerName() + " wants to take you on this date!";
           } else {
             pill.textContent = "Waiting for " + getPartnerName();
-            personalBanner.innerHTML = "✨ You planned this for " + getPartnerName() + ". Waiting for them to say yes!";
+            banner.textContent = "✨ You asked " + getPartnerName() + ". Waiting for them to say yes!";
           }
         } else {
           pill.textContent = "Declined";
-          personalBanner.textContent = "This date was declined.";
+          banner.textContent = "This date was declined.";
         }
 
         $("dtWhen").textContent = longDate(ev.date) + ", " + timeText(ev);
@@ -2728,48 +1677,103 @@
         note.textContent = ev.note || "";
         note.hidden = !ev.note;
 
-        $("dtAnswer").hidden = !canAnswer(ev);
-        var canManage = isMine(ev) || ev.status === "accepted";
-        $("dtActions").hidden = !canManage || !$("dtConfirm").hidden;
+        var manage = canManage(ev);
+        if (!manage) $("dtConfirm").hidden = true;          // never leave a cancel prompt up on a date you can't cancel
+        $("dtAnswer").hidden = !incoming;                   // Accept / Decline: only the person who was asked
+        $("dtActions").hidden = !manage || !$("dtConfirm").hidden; // Edit / Cancel: only the asker (or both once accepted)
       }
 
-      /* Quick Start Setup */
+      /* ---------- Who are you? (locks this phone) ---------- */
+      var setupSel = null;
+      var SETUP = [
+        { uid: "u_you", card: "setupCardB", av: "setupAvB", nm: "setupNameB", sub: "setupSubB", key: "b", def: "Shreya" },
+        { uid: "u_her", card: "setupCardA", av: "setupAvA", nm: "setupNameA", sub: "setupSubA", key: "a", def: "Reejan" }
+      ];
+      function setupErr(msg) { var e = $("setupErr"); e.textContent = msg || ""; e.hidden = !msg; }
+
+      function renderSetup() {
+        var c = window.coupleApp.getClaims();
+        var status = window.coupleApp.getStatus();
+        var free = 0;
+        SETUP.forEach(function (s) {
+          var taken = !!c[s.uid];
+          if (!taken) free++;
+          if (taken && setupSel === s.uid) setupSel = null;
+          var card = $(s.card);
+          card.className = "setup-card" + (taken ? " taken" : "") + (setupSel === s.uid ? " selected" : "");
+          card.disabled = taken;
+          card.querySelector(".setup-badge").textContent = taken ? "TAKEN" : "SELECTED";
+          var name = nameOf(s.key, s.def);
+          $(s.nm).textContent = name;
+          $(s.sub).textContent = taken ? "Already chosen on another phone" : "I am " + name;
+          $(s.av).innerHTML = avatarNode(s.key).innerHTML;
+        });
+        var msg = $("setupMsg"), btn = $("btnConfirmSetup");
+        if (status !== "ok") {
+          msg.textContent = window.coupleApp.getErrorMsg() || "Can't reach the server right now. Check your connection and reload.";
+        } else if (free === 0) {
+          msg.textContent = "Both spots are already taken. This calendar is for two people only.";
+        } else {
+          msg.textContent = "Who is using this phone? Once you confirm, this phone is locked to you and nobody else can pick your spot.";
+        }
+        btn.disabled = status !== "ok" || free === 0 || !setupSel;
+      }
+
       function showSetupModal() {
-        var selectedUser = window.coupleApp.USER_B;
-        $("setupCardB").className = "setup-card selected";
-        $("setupCardA").className = "setup-card";
-
-        $("setupAvA").innerHTML = avatarNode("a").innerHTML;
-        $("setupAvB").innerHTML = avatarNode("b").innerHTML;
-
-        $("setupCardB").addEventListener("click", function () {
-          selectedUser = window.coupleApp.USER_B;
-          $("setupCardB").className = "setup-card selected";
-          $("setupCardA").className = "setup-card";
-        });
-        $("setupCardA").addEventListener("click", function () {
-          selectedUser = window.coupleApp.USER_A;
-          $("setupCardA").className = "setup-card selected";
-          $("setupCardB").className = "setup-card";
-        });
-
-        $("btnConfirmSetup").addEventListener("click", function () {
-          window.coupleApp.claimDevice(selectedUser);
-        });
-
+        setupSel = null;
+        setupErr("");
+        renderSetup();
         showSheet("sheetSetup");
       }
 
-      function copyInviteLink() {
-        var link = window.coupleApp.getPartnerInviteLink();
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(link).then(function () {
-            toast("Invite link for " + getPartnerName() + " copied! Send it to them 💌");
-          }).catch(function () { prompt("Send this link to your partner:", link); });
-        } else { prompt("Send this link to your partner:", link); }
+      SETUP.forEach(function (s) {
+        $(s.card).addEventListener("click", function () {
+          if ($(s.card).disabled) return;
+          setupSel = s.uid; setupErr(""); renderSetup();
+        });
+      });
+      $("btnConfirmSetup").addEventListener("click", function () {
+        if (!setupSel) return;
+        $("btnConfirmSetup").disabled = true; setupErr("");
+        window.coupleApp.claimDevice(setupSel).catch(function (e) {
+          var m = e && e.message;
+          setupErr(m === "taken" ? "Sorry, that spot was just taken on another phone." : "Couldn't lock your spot. Check your connection and try again.");
+          renderSetup();
+        });
+      });
+      /* ---------- Entry code screen + gate routing ---------- */
+      function codeErr(msg) { var e = $("codeErr"); e.textContent = msg || ""; e.hidden = !msg; }
+      function showCodeModal() {
+        $("codeInput").value = "";
+        codeErr("");
+        showSheet("sheetCode");
+        setTimeout(function () { $("codeInput").focus(); }, 150);
       }
+      $("codeForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var v = $("codeInput").value.trim();
+        if (!v) { codeErr("Enter the entry code."); return; }
+        var btn = $("btnCode");
+        btn.disabled = true; codeErr("");
+        window.coupleApp.submitCode(v).catch(function (err) {
+          codeErr(err && err.message === "wrong" ? "That code isn't right. Try again." : "Couldn't reach the server. Check your connection and try again.");
+        }).then(function () { btn.disabled = false; });
+      });
 
-      /* Event Wiring */
+      // Decides which gate screen to show: entry code -> pick who you are -> app.
+      function routeGate() {
+        var ph = window.coupleApp.getPhase();
+        if (ph === "loading" || ph === "ready") return;
+        if (ph === "code") {
+          if ($("sheetCode").hidden) showCodeModal();
+        } else { // "pick" or "error"
+          if ($("sheetSetup").hidden) showSetupModal(); else renderSetup();
+        }
+      }
+      window.coupleApp.onClaims(routeGate);
+      window.coupleApp.onSyncError(function (m) { toast(m); });
+
+      /* Wiring */
       document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest("[data-close]")) closeSheets(); });
       $("scrim").addEventListener("click", closeSheets);
       document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeSheets(); });
@@ -2795,19 +1799,16 @@
       $("next").addEventListener("click", function () { var d = new Date(state.year, state.month + 1, 1); state.year = d.getFullYear(); state.month = d.getMonth(); renderCalendar(); });
       $("todayBtn").addEventListener("click", function () { var n = new Date(); state.year = n.getFullYear(); state.month = n.getMonth(); state.selected = ymd(n); renderCalendar(); renderDayList(); });
 
-      $("dtAccept").addEventListener("click", function () { var id = state.detailId; answer(id, "accepted"); });
-      $("dtDecline").addEventListener("click", function () { var id = state.detailId; answer(id, "declined"); });
+      $("dtAccept").addEventListener("click", function () { answer(state.detailId, "accepted"); });
+      $("dtDecline").addEventListener("click", function () { answer(state.detailId, "declined"); });
       $("dtEdit").addEventListener("click", function () { var ev = findEv(state.detailId); if (ev) openEvForm(ev); });
-      $("dtDelete").addEventListener("click", function () { $("dtConfirm").hidden = false; $("dtActions").hidden = true; });
+      $("dtDelete").addEventListener("click", function () {
+        var ev = findEv(state.detailId);
+        if (!ev || !canManage(ev)) return;
+        $("dtConfirm").hidden = false; $("dtActions").hidden = true;
+      });
       $("dtDeleteNo").addEventListener("click", function () { $("dtConfirm").hidden = true; renderDetail(); });
       $("dtDeleteYes").addEventListener("click", function () { if (state.detailId) removeEvent(state.detailId); });
-
-      $("sessShareBtn").addEventListener("click", copyInviteLink);
-      $("btnResetDevice").addEventListener("click", function () {
-        if (confirm("Reset this device's session? You will be asked to choose who owns this phone again.")) {
-          window.coupleApp.resetDevice();
-        }
-      });
 
       buildProfileBlocks();
       setTab("home");
@@ -2822,15 +1823,13 @@
         }
         if (!db) return;
 
-        state.hasDb = true;
-        if (user) {
-          try { state.myId = await user.id(); } catch (e) { }
-        }
-        setTab(state.tab);
-        render();
+        // Wait for the cloud claims, then confirm this phone's locked identity.
+        try { await window.coupleApp.ready(); } catch (e) { }
+        if (user) { try { state.myId = await user.id(); } catch (e) { } }
 
         state.evCol = db.collection("events");
         state.profRef = db.doc("couple/profile");
+        render();
 
         state.profRef.onSnapshot(function (snap) {
           state.profileExists = snap.exists;
@@ -2839,7 +1838,7 @@
           render();
         });
 
-        state.evCol.onSnapshot(async function (snap) {
+        state.evCol.onSnapshot(function (snap) {
           state.events = snap.docs.map(function (d) {
             var o = d.data() || {};
             return {
@@ -2849,19 +1848,10 @@
               status: o.status === "accepted" || o.status === "declined" ? o.status : "pending"
             };
           }).filter(function (e) { return e.title && DATE_RE.test(e.date); });
-
-          if (user) {
-            var ids = [];
-            state.events.forEach(function (e) { if (e.by && ids.indexOf(e.by) < 0) ids.push(e.by); });
-            if (state.myId && ids.indexOf(state.myId) < 0) ids.push(state.myId);
-            if (ids.length) { try { state.people = await user.profiles(ids); } catch (e) { } }
-          }
           render();
         });
 
-        if (!window.coupleApp.isClaimed()) {
-          setTimeout(showSetupModal, 250);
-        }
+        routeGate();
       }
 
       start();
