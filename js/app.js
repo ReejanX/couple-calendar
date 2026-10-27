@@ -189,7 +189,7 @@
           li.appendChild(head);
           var list = el("div", "evlist");
           if (!g.events.length) list.appendChild(el("p", "empty", emptyText));
-          g.events.forEach(function (ev) { list.appendChild(evCard(ev)); });
+          g.events.forEach(function (ev) { list.appendChild(homePage.evCard(ev)); });
           li.appendChild(list); ul.appendChild(li);
         });
       }
@@ -209,6 +209,7 @@
 
       function setTab(name) {
         state.tab = name;
+        try { sessionStorage.setItem("couple_calendar_active_tab", name); } catch (e) { }
         $("viewHome").hidden = name !== "home";
         $("viewCal").hidden = name !== "cal";
         $("viewMemories").hidden = name !== "mem";
@@ -599,38 +600,42 @@
       wireMemoryUpload($("memoryUpload"), false);
       wireMemoryUpload($("boothAddPhoto"), true);
       var pullStartY = null, pullDistance = 0, refreshRunning = false;
-      var memoriesView = $("viewMemories");
-      function refreshMemories() {
+      var appShell = $("app");
+      function refreshSharedData() {
         if (refreshRunning) return;
         refreshRunning = true;
-        showSyncIndicator("Refreshing shared memories…");
+        showSyncIndicator("Refreshing shared plans…");
         window.coupleApp.refresh().then(function () {
           hideSyncIndicator();
-          if (window.coupleApp.getSyncStatus().mode === "local") toast("Memories refreshed on this device.");
+          if (window.coupleApp.getSyncStatus().mode === "local") toast("Data refreshed on this device.");
         }).catch(function (error) {
           hideSyncIndicator();
-          toast(error && error.message === "firebase-unavailable" ? "Could not refresh. Firebase is offline." : "Could not refresh shared memories. Check your connection.");
+          toast(error && error.message === "firebase-unavailable" ? "Could not refresh. Firebase is offline." : "Could not refresh shared data. Check your connection.");
         }).finally(function () { refreshRunning = false; });
       }
-      memoriesView.addEventListener("touchstart", function (event) {
-        if (state.tab !== "mem" || refreshRunning || window.scrollY > 0) return;
+      appShell.addEventListener("touchstart", function (event) {
+        if (refreshRunning || window.scrollY > 0 || !event.touches.length) return;
+        if (event.target.closest("button,a,input,textarea,select,[contenteditable=\"true\"],.booth-strip-photos")) return;
+        var innerScroller = event.target.closest(".mem-pile,.mem-booths-scroll");
+        if (innerScroller && innerScroller.scrollTop > 0) return;
         pullStartY = event.touches[0].clientY;
         pullDistance = 0;
       }, { passive: true });
-      memoriesView.addEventListener("touchmove", function (event) {
-        if (pullStartY === null || state.tab !== "mem") return;
+      appShell.addEventListener("touchmove", function (event) {
+        if (pullStartY === null || !event.touches.length) return;
+        if (window.scrollY > 0) { pullStartY = null; pullDistance = 0; hideSyncIndicator(); return; }
         pullDistance = Math.max(0, event.touches[0].clientY - pullStartY);
         if (pullDistance < 12) return;
         event.preventDefault();
         showSyncIndicator(pullDistance >= 64 ? "Release to refresh…" : "Pull to refresh…");
       }, { passive: false });
-      memoriesView.addEventListener("touchend", function () {
+      appShell.addEventListener("touchend", function () {
         if (pullStartY === null) return;
         var shouldRefresh = pullDistance >= 64;
         pullStartY = null; pullDistance = 0;
-        if (shouldRefresh) refreshMemories(); else hideSyncIndicator();
+        if (shouldRefresh) refreshSharedData(); else hideSyncIndicator();
       }, { passive: true });
-      memoriesView.addEventListener("touchcancel", function () { pullStartY = null; pullDistance = 0; hideSyncIndicator(); }, { passive: true });
+      appShell.addEventListener("touchcancel", function () { pullStartY = null; pullDistance = 0; hideSyncIndicator(); }, { passive: true });
 
       $("tabHome").addEventListener("click", function () { setTab("home"); });
       $("tabCal").addEventListener("click", function () { setTab("cal"); });
@@ -716,7 +721,9 @@
       $("dtDeleteYes").addEventListener("click", function () { if (state.detailId) removeEvent(state.detailId); });
 
       buildProfileBlocks();
-      setTab("home");
+      var savedTab = null;
+      try { savedTab = sessionStorage.getItem("couple_calendar_active_tab"); } catch (e) { }
+      setTab(savedTab === "cal" || savedTab === "mem" ? savedTab : "home");
       initTheme();
 
       async function start() {

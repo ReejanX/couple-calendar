@@ -126,25 +126,21 @@
       }
       function renderMemories() {
         var root = $("memoriesContent"); if (!root) return;
-        var pastDateEvents = state.events.filter(function (e) { return e.status === "accepted" && e.date < today(); }).sort(function (a, b) { return b.date.localeCompare(a.date); });
         var boothEvents = state.events.filter(function (e) { return e.status === "accepted" && boothPhotoIds(state.memoryBooths[e.id]).length > 0; }).sort(function (a, b) { return b.date.localeCompare(a.date); });
         var acceptedDates = state.events.filter(function (e) { return e.status === "accepted"; }).sort(function (a, b) { return a.date.localeCompare(b.date); });
+        var completedDates = acceptedDates.filter(function (e) { return e.date < today(); });
+        var boothDateOptions = completedDates.length ? completedDates : acceptedDates;
         if (state.memoryMode === "dates") {
-          $("memSubtitle").textContent = "Past dates are ready for more memories. Swipe through your photo booths.";
+          $("memSubtitle").textContent = "Your shared photo pile and photo booths live here.";
           var out = '';
-          if (pastDateEvents.length) {
-            out += '<h3 class="mem-section-title">Past dates · add photos</h3>';
-            pastDateEvents.forEach(function (ev) {
-              out += '<article class="mem-card"><div class="mem-past-date"><div><h3>' + htmlSafe(ev.title) + '</h3><p class="mem-hint">' + htmlSafe(longDate(ev.date)) + '</p></div><button class="mem-button primary" data-mem="booth" data-event="' + htmlSafe(ev.id) + '">Add photos</button></div></article>';
-            });
-          }
           out += '<div class="mem-card"><div class="mem-date"><div><h3>Your shared photo pile</h3><p>' + state.memoryPhotos.length + ' little moments saved so far</p></div><button class="mem-button" data-mem="pile">Open pile</button></div></div>';
           if (boothEvents.length) {
             out += '<h3 class="mem-section-title">Your photo booths</h3><div class="mem-booths-scroll">';
             boothEvents.forEach(function (ev) { out += renderBoothPreview(ev, state.memoryBooths[ev.id]); });
             out += '</div>';
+          } else {
+            out += '<div class="mem-card mem-empty">Add a few photos to your pile, then make a photo booth for one of your accepted dates. ✨</div>';
           }
-          if (!pastDateEvents.length && !boothEvents.length) out += '<div class="mem-card mem-empty">Your accepted dates will show up here after they happen. ✨</div>';
           root.innerHTML = out; return;
         }
         if (state.memoryMode === "pile") {
@@ -172,8 +168,9 @@
         if (state.memoryMode === "choose-date") {
           $("memSubtitle").textContent = "Choose the date to create your photo booth for.";
           var chooseDate = '<div class="mem-actions"><button class="mem-button" data-mem="pile">← Photo pile</button></div>';
-          if (!acceptedDates.length) chooseDate += '<div class="mem-card mem-empty">Accept a date first, then you can save a photo booth for it. ✨</div>';
-          acceptedDates.forEach(function (ev) {
+          if (!boothDateOptions.length) chooseDate += '<div class="mem-card mem-empty">Accept a date first, then you can save a photo booth for it. ✨</div>';
+          else chooseDate += '<h3 class="mem-section-title">' + (completedDates.length ? 'Choose a completed date' : 'No past dates yet · choose an accepted date') + '</h3>';
+          boothDateOptions.forEach(function (ev) {
             var saved = state.memoryBooths[ev.id], count = boothPhotoIds(saved).length;
             chooseDate += '<article class="mem-card"><div class="mem-date"><div><h3>' + htmlSafe(ev.title) + '</h3><p>' + htmlSafe(longDate(ev.date)) + (count ? ' · ' + count + ' photos already' : '') + '</p></div><button class="mem-button primary" data-mem="select-event" data-event="' + htmlSafe(ev.id) + '">Create booth for this date</button></div></article>';
           });

@@ -118,7 +118,7 @@
        were always visible. This makes the hidden attribute always win. */
     [hidden] { display: none !important; }
 
-    html, body { height: 100%; margin: 0; padding: 0; }
+    html, body { height: 100%; margin: 0; padding: 0; overscroll-behavior-y: contain; }
     html { touch-action: pan-x pan-y; }
 
     body {
@@ -144,6 +144,7 @@
       padding-left: max(18px, env(safe-area-inset-left, 0px));
       padding-right: max(18px, env(safe-area-inset-right, 0px));
       transition: background-color 0.25s ease;
+      overscroll-behavior-y: contain;
     }
 
     @media (min-width: 520px) {

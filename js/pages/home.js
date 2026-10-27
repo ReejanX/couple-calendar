@@ -130,7 +130,8 @@
       renderGreeting: renderGreeting,
       renderCountdown: renderCountdown,
       renderCouple: renderCouple,
-      renderUpcoming: renderUpcoming
+      renderUpcoming: renderUpcoming,
+      evCard: evCard
     };
   };
 })(window);
