@@ -627,7 +627,7 @@
         pullDistance = Math.max(0, event.touches[0].clientY - pullStartY);
         if (pullDistance < 12) return;
         event.preventDefault();
-        showSyncIndicator(pullDistance >= 64 ? "Release to refresh…" : "Pull to refresh…");
+        showSyncIndicator("Pull to refresh…");
       }, { passive: false });
       appShell.addEventListener("touchend", function () {
         if (pullStartY === null) return;

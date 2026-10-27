@@ -330,7 +330,6 @@
     .mem-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin:8px 0 18px; }
     .mem-head h2 { margin:0 0 4px; font-size:1.35rem; }
     .mem-head p,.mem-hint { margin:0; color:var(--muted); font-size:.9rem; line-height:1.45; }
-    .mem-head .mem-refresh-hint { margin-top:5px; font-size:.75rem; opacity:.78; }
     .mem-card { background:var(--surface); border:1px solid var(--line); border-radius:20px; padding:16px; margin:12px 0; box-shadow:var(--shadow); }
     .mem-date { display:flex; align-items:center; justify-content:space-between; gap:12px; }
     .mem-date h3 { margin:0 0 4px; font-size:1rem; }
