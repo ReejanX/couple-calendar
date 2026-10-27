@@ -672,6 +672,29 @@
           if (state.memorySelectedPhotoIds.length < 3 || state.memorySelectedPhotoIds.length > 4) { toast("Select 3 or 4 photos first."); return; }
           state.memoryMode = "choose-date"; renderMemories();
         }
+        else if (action === "create-standalone") {
+          var standalonePhotoIds = state.memorySelectedPhotoIds.slice();
+          if (standalonePhotoIds.length < 3 || standalonePhotoIds.length > 4) { toast("Select 3 or 4 photos first."); return; }
+          var standaloneId = "standalone_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
+          state.memoryBooths[standaloneId] = { boothId: standaloneId, eventId: null, title: "A little memory", date: "", photoIds: [], note: "", revision: 0, approvals: {} };
+          if (memoriesPage.beginBooth(standaloneId, standalonePhotoIds)) memoriesPage.saveBoothDraft().then(function (saved) {
+            if (!saved || !memoriesPage.boothIsFinal(saved)) return false;
+            return standalonePhotoIds.reduce(function (chain, photoId) {
+              return chain.then(function (ok) { return ok ? memoriesPage.removeMemoryPhotoFromPile(photoId, false) : false; });
+            }, Promise.resolve(true));
+          }).then(function (removed) { if (removed) toast("Your standalone booth is saved, and its photos are out of the pile ✨"); });
+        }
+        else if (action === "start-link-date") { state.memoryMode = "link-date"; renderMemories(); }
+        else if (action === "link-booth-date") {
+          var boothIdToLink = state.memoryEventId;
+          window.coupleApp.updateMemoryBooth(boothIdToLink, function (current) {
+            current = current || {};
+            return Object.assign({}, current, { boothId: boothIdToLink, eventId: eventId });
+          }).then(function (saved) {
+            state.memoryBooths[boothIdToLink] = saved;
+            state.memoryMode = "booth"; renderMemories(); toast("Photo booth linked to your past date 💕");
+          }).catch(function () { toast("Could not link this booth to the date. Check your connection and try again."); });
+        }
         else if (action === "select-event") {
           var photoIdsToMove = state.memorySelectedPhotoIds.slice();
           if (beginBooth(eventId, photoIdsToMove)) saveBoothDraft().then(function (saved) {
