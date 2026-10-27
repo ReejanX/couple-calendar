@@ -26,28 +26,34 @@
         var count = boothPhotoIds(booth).length;
         return count >= 3 && count <= 4;
       }
+      function boothCardHeight(availableWidth) {
+        var stageWidth = Math.min(560, Math.max(280, availableWidth || window.innerWidth - 48));
+        return Math.min(430, Math.max(300, Math.round(stageWidth * .86)));
+      }
       function boothStageHeight(ids, availableWidth) {
         var stageWidth = Math.min(560, Math.max(280, availableWidth || window.innerWidth - 48));
         var stripWidth = stageWidth <= 380 ? .32 : .30;
         var frameHeight = (stageWidth * stripWidth - (stageWidth <= 380 ? 12 : 18)) * .75;
-        return Math.max(360, Math.ceil(95 + ids.length * (frameHeight + 6)));
+        var stripHeight = 95 + ids.length * (frameHeight + 6);
+        return Math.ceil(Math.max(boothCardHeight(stageWidth), stripHeight) + 18);
       }
-      function renderBoothMainCard(ids, booth, event, note, editable) {
+      function renderBoothMainCard(ids, booth, event, note, editable, cardHeight) {
         var heroUrl = ids[0] ? boothPhotoUrl(booth, ids[0]) : "";
-        var html = '<div class="booth-memory-card"><div class="booth-card-layout"><div class="booth-collage">';
-        html += heroUrl ? '<img class="booth-collage-hero" src="' + htmlSafe(heroUrl) + '" alt="Main keepsake photo">' : '<div class="booth-empty-slot booth-collage-hero">Your photo</div>';
+        var html = '<div class="booth-memory-card" style="--booth-card-height:' + cardHeight + 'px"><div class="booth-card-layout"><div class="booth-collage">';
+        if (heroUrl) html += '<img class="booth-collage-hero" src="' + htmlSafe(heroUrl) + '" alt="Main keepsake photo">';
         html += '<div class="booth-collage-thumbs">';
-        for (var i = 1; i <= 3; i++) {
-          var thumbUrl = ids[i] ? boothPhotoUrl(booth, ids[i]) : "";
-          html += thumbUrl ? '<img src="' + htmlSafe(thumbUrl) + '" alt="Keepsake photo ' + (i + 1) + '">' : '<span class="booth-empty-thumb" aria-hidden="true"></span>';
+        for (var i = 1; i <= 2 && i < ids.length; i++) {
+          var thumbUrl = boothPhotoUrl(booth, ids[i]);
+          if (thumbUrl) html += '<img src="' + htmlSafe(thumbUrl) + '" alt="Keepsake photo ' + (i + 1) + '">';
         }
         html += '</div></div><div class="booth-card-note"' + (editable ? ' contenteditable="true" role="textbox" aria-multiline="true" aria-label="Write a note for this photo booth" data-placeholder="Write a little note to remember this day…"' : '') + '>' + (editable ? htmlSafe(note || "") : htmlSafe(note || 'A little day to remember.')) + '</div></div><div class="booth-card-footer"><span class="booth-card-title">' + htmlSafe(event.title) + '</span><span class="booth-card-date">' + htmlSafe(boothDateLabel(event)) + '</span></div></div>';
         return html;
       }
       function renderBoothPreview(event, booth) {
-        var ids = boothPhotoIds(booth), height = boothStageHeight(ids, Math.min(560, window.innerWidth * .94));
+        var ids = boothPhotoIds(booth), stageWidth = Math.min(560, window.innerWidth * .94);
+        var height = boothStageHeight(ids, stageWidth), cardHeight = boothCardHeight(stageWidth);
         var boothId = booth.boothId || booth.eventId || event.id;
-        var html = '<button type="button" class="mem-booth-preview" data-mem="booth" data-event="' + htmlSafe(boothId) + '" aria-label="Edit photo booth for ' + htmlSafe(event.title) + '"><div class="booth-stage" style="height:' + height + 'px">' + renderBoothMainCard(ids, booth, event, booth.note, false) + '<div class="booth-strip"><div class="booth-strip-photos">';
+        var html = '<button type="button" class="mem-booth-preview" data-mem="booth" data-event="' + htmlSafe(boothId) + '" aria-label="Edit photo booth for ' + htmlSafe(event.title) + '"><div class="booth-stage" style="height:' + height + 'px">' + renderBoothMainCard(ids, booth, event, booth.note, false, cardHeight) + '<div class="booth-strip"><div class="booth-strip-photos">';
         ids.forEach(function (id, index) {
           var photoUrl = boothPhotoUrl(booth, id);
           if (photoUrl) html += '<div class="booth-strip-item"><img class="booth-strip-photo" src="' + htmlSafe(photoUrl) + '" alt="Photo booth frame ' + (index + 1) + '"></div>';
@@ -193,8 +199,8 @@
         $("memSubtitle").textContent = htmlSafe(ev.title) + (ev.date ? ' · ' + longDate(ev.date) : ' · Standalone photo booth');
         var editor = '<div class="mem-actions"><button class="mem-button" data-mem="back">← Dates</button><button class="mem-button" data-mem="pile">Open photo pile</button></div>';
         editor += '<p class="mem-hint">Drag the frames to rearrange your photo booth.</p>';
-        var stageHeight = boothStageHeight(ids, root.clientWidth);
-        editor += '<div class="booth-stage" style="height:' + stageHeight + 'px">' + renderBoothMainCard(ids, savedBooth, ev, draft.note, true) + '<div class="booth-strip"><div class="booth-strip-photos">';
+        var stageWidth = root.clientWidth, stageHeight = boothStageHeight(ids, stageWidth), cardHeight = boothCardHeight(stageWidth);
+        editor += '<div class="booth-stage" style="height:' + stageHeight + 'px">' + renderBoothMainCard(ids, savedBooth, ev, draft.note, true, cardHeight) + '<div class="booth-strip"><div class="booth-strip-photos">';
         ids.forEach(function (id, index) {
           var photoUrl = boothPhotoUrl(savedBooth, id);
           if (photoUrl) editor += '<div class="booth-strip-item' + (state.memorySelectedBoothPhotoId === id ? ' is-selected' : '') + '" data-booth-index="' + index + '" draggable="true"><button type="button" class="booth-photo-pick" data-mem="booth-select-photo" data-photo-id="' + htmlSafe(id) + '" aria-label="Select photo ' + (index + 1) + '"><img class="booth-strip-photo" src="' + htmlSafe(photoUrl) + '" alt="Photo booth frame ' + (index + 1) + '"></button><button type="button" class="booth-photo-delete"' + (state.memorySelectedBoothPhotoId === id ? '' : ' hidden') + ' data-mem="remove" data-index="' + index + '" aria-label="Remove photo ' + (index + 1) + ' from booth">×</button></div>';

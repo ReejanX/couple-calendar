@@ -355,14 +355,13 @@
     .mem-pile.is-crowded .pile-item:nth-child(3n+2) { transform:translateX(-7px); }
     .mem-pile.is-crowded .pile-item:nth-child(3n+1) { transform:translateY(-4px); }
     .booth-stage { position:relative; width:100%; max-width:560px; margin:22px auto 30px; }
-    .booth-memory-card { position:absolute; left:0; top:0; width:80%; min-height:320px; box-sizing:border-box; padding:15px 10% 14px 14px; border:1px solid #e8e2d9; background:#f2efe9; box-shadow:0 10px 28px #432c3026; color:#453f38; display:flex; flex-direction:column; }
+    .booth-memory-card { position:absolute; left:0; top:0; width:80%; height:var(--booth-card-height,360px); min-height:0; box-sizing:border-box; padding:15px 10% 14px 14px; border:1px solid #e8e2d9; background:#f2efe9; box-shadow:0 10px 28px #432c3026; color:#453f38; display:flex; flex-direction:column; overflow:hidden; }
     .booth-card-title { font:700 .8rem/1.3 Georgia,serif; letter-spacing:.12em; text-transform:uppercase; }
     .booth-card-layout { display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:9px; flex:1; min-height:0; }
-    .booth-collage { display:grid; grid-template-rows:minmax(0,1fr) auto; gap:6px; min-width:0; }
-    .booth-collage-hero { width:100%; height:100%; min-height:110px; object-fit:cover; background:#ddd; }
-    .booth-collage-thumbs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px; }
-    .booth-collage-thumbs img,.booth-empty-thumb { width:100%; aspect-ratio:1.25; object-fit:cover; background:#e4dfd7; }
-    .booth-empty-slot { display:grid; place-items:center; background:#e4dfd7; color:#93897f; font-size:.72rem; text-align:center; }
+    .booth-collage { display:grid; grid-template-rows:auto auto; align-content:start; gap:6px; min-width:0; }
+    .booth-collage-hero { display:block; width:100%; height:auto; aspect-ratio:4/3; object-fit:cover; }
+    .booth-collage-thumbs { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:5px; }
+    .booth-collage-thumbs img { display:block; width:100%; height:auto; aspect-ratio:4/3; object-fit:cover; }
     .booth-card-note { min-height:48px; color:#665c55; font:italic .84rem/1.4 "Snell Roundhand","Segoe Script",cursive; white-space:pre-wrap; overflow-wrap:anywhere; }
     .booth-card-note[contenteditable="true"] { outline:none; cursor:text; }
     .booth-card-note[contenteditable="true"]:focus { outline:1px dashed #bd8798; outline-offset:3px; }
@@ -384,7 +383,7 @@
     .booth-photo-delete { position:absolute; z-index:5; top:2px; right:2px; width:25px; height:25px; display:grid; place-items:center; border:2px solid #fff; border-radius:50%; background:#a8405b; color:#fff; box-shadow:0 2px 8px #24150f66; font-size:17px; line-height:1; font-weight:700; cursor:pointer; }
     .booth-strip-footer { display:grid; gap:7px; margin-top:8px; padding:8px 3px 0; border-top:1px solid #eee; color:#49413d; font:700 .59rem/1.3 Georgia,serif; letter-spacing:.08em; text-align:center; text-transform:uppercase; }
     .booth-strip-footer span:last-child { font-size:.5rem; font-weight:400; }
-    @media (max-width:380px) { .booth-stage { margin-left:-4px; width:calc(100% + 8px); } .booth-memory-card { width:80%; padding:12px 10% 12px 10px; } .booth-strip { width:32%; padding:7px 6px 10px; } }
+    @media (max-width:380px) { .booth-stage { margin-left:-4px; width:calc(100% + 8px); } .booth-memory-card { width:80%; height:var(--booth-card-height,320px); padding:12px 10% 12px 10px; } .booth-strip { width:32%; padding:7px 6px 10px; } }
     .booth-note { min-height:90px; margin:14px -18px 0; padding:14px 18px 20px; border-top:1px solid #eee; font:italic 1rem/1.5 Georgia,serif; white-space:pre-wrap; overflow-wrap:anywhere; }
     .booth-editor-note { width:100%; }
     .mem-upload { display:none; }
