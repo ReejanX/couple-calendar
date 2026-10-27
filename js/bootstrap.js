@@ -25,6 +25,9 @@
       main.innerHTML = sections.join("\n");
       main.setAttribute("aria-busy", "false");
       await loadScript("./js/data-layer.js");
+      await loadScript("./js/pages/home.js");
+      await loadScript("./js/pages/calendar.js");
+      await loadScript("./js/pages/memories.js");
       await loadScript("./js/app.js");
     } catch (error) {
       main.setAttribute("aria-busy", "false");

@@ -23,6 +23,29 @@
       };
       (function () { var n = new Date(); state.year = n.getFullYear(); state.month = n.getMonth(); })();
 
+      var homePage = window.CoupleCalendarPages.createHomePage({
+        $: $, state: state, today: today, parseYmd: parseYmd, fmtTime: fmtTime, timeText: timeText,
+        cmp: cmp, acceptedDateMessage: acceptedDateMessage, PK: PK, canAnswer: canAnswer,
+        getPartnerName: getPartnerName, getMyName: getMyName, avatarNode: avatarNode, el: el, pad: pad,
+        buildTimeline: buildTimeline, openDetail: openDetail, answer: answer
+      });
+      var calendarPage = window.CoupleCalendarPages.createCalendarPage({
+        $: $, state: state, el: el, today: today, ymd: ymd, parseYmd: parseYmd, cmp: cmp, buildTimeline: buildTimeline
+      });
+      var memoriesPage = window.CoupleCalendarPages.createMemoriesPage({
+        $: $, state: state, today: today, longDate: longDate, pad: pad, toast: toast,
+        showSyncIndicator: showSyncIndicator, hideSyncIndicator: hideSyncIndicator, readProfilePhoto: readProfilePhoto
+      });
+      var renderGreeting = homePage.renderGreeting, renderCountdown = homePage.renderCountdown;
+      var renderCouple = homePage.renderCouple, renderUpcoming = homePage.renderUpcoming;
+      var renderCalendar = calendarPage.renderCalendar, renderDayList = calendarPage.renderDayList;
+      var boothPhotoIds = memoriesPage.boothPhotoIds, memoryPhotoUrl = memoriesPage.memoryPhotoUrl;
+      var boothIsFinal = memoriesPage.boothIsFinal, renderMemories = memoriesPage.renderMemories;
+      var wireMemoryUpload = memoriesPage.wireMemoryUpload, beginBooth = memoriesPage.beginBooth;
+      var saveBoothDraft = memoriesPage.saveBoothDraft, removeMemoryPhotoFromPile = memoriesPage.removeMemoryPhotoFromPile;
+      var deleteMemoryPhoto = memoriesPage.deleteMemoryPhoto, exportBooth = memoriesPage.exportBooth;
+
+
       function el(tag, cls, text) {
         var n = document.createElement(tag);
         if (cls) n.className = cls;
@@ -150,111 +173,7 @@
         });
       }
 
-      /* Greeting & labels */
-      function renderGreeting() {
-        var hour = new Date().getHours();
-        var timeWord = hour < 12 ? "Good morning" : (hour < 18 ? "Good afternoon" : "Good evening");
-        var myName = getMyName();
-        $("greetingTitle").textContent = myName ? timeWord + ", " + myName : timeWord;
-        $("greetingSubtitle").textContent = state.myId ? "Your private sanctuary with " + getPartnerName() : "Your private plans together";
-        $("roleA").textContent = (state.myId === window.coupleApp.USER_A) ? "You" : "Partner";
-        $("roleB").textContent = (state.myId === window.coupleApp.USER_B) ? "You" : "Partner";
-        if (!state.editingId) $("fSave").textContent = "Ask " + getPartnerName() + " 💕";
-        $("fNoteInfo").textContent = getPartnerName() + " will see this proposal and can say yes!";
-      }
-
-      function renderCountdown() {
-        var t = today();
-        var next = state.events.filter(function (e) { return e.status === "accepted" && e.date >= t; }).sort(cmp)[0];
-        var num = $("cdNum"), label = $("cdLabel"), title = $("cdTitle"), when = $("cdWhen"), plan = $("cdPlan");
-        var eyebrow = $("cdEyebrow");
-        state.nextId = next ? next.id : null;
-
-        if (!next) {
-          eyebrow.textContent = "Our Reunion";
-          num.textContent = "No plans yet"; num.className = "big word";
-          label.textContent = "Plan something memorable for your visit 💕";
-          title.textContent = ""; when.textContent = ""; plan.hidden = false;
-          return;
-        }
-
-        plan.hidden = true;
-        eyebrow.textContent = "Next Reunion Date";
-        var days = Math.round((parseYmd(next.date) - parseYmd(t)) / 86400000);
-        if (days === 0) { num.textContent = "Today"; num.className = "big word"; label.textContent = "Enjoy every second together! 💕"; }
-        else if (days === 1) { num.textContent = "Tomorrow"; num.className = "big word"; label.textContent = "Almost time! 💕"; }
-        else { num.textContent = String(days); num.className = "big"; label.textContent = "days until our date"; }
-
-        title.textContent = next.title;
-        when.textContent = parseYmd(next.date).toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short" }) +
-          (next.allDay || !next.start ? "" : ", " + fmtTime(next.start));
-      }
-
-      function renderCouple() {
-        PK.forEach(function (k) {
-          var holder = $(k === "a" ? "avA" : "avB");
-          holder.textContent = ""; holder.appendChild(avatarNode(k));
-          var n = $(k === "a" ? "nameA" : "nameB");
-          var nm = (state.profile[k].name || "").trim();
-          n.textContent = nm || "Add name";
-          n.className = "pname";
-        });
-      }
-
       /* Event card */
-      function evCard(ev) {
-        var wrap = el("div", "evwrap");
-        var incoming = canAnswer(ev);
-        var card = el("div", "evcard " + ev.status + (incoming ? " pending-incoming" : ""));
-        card.tabIndex = 0; card.setAttribute("role", "button");
-
-        var cardHead = el("div", "evcard-header");
-        var pill = el("span", "pill " + ev.status);
-        if (ev.status === "accepted") pill.textContent = "Accepted 💕";
-        else if (ev.status === "pending") pill.textContent = incoming ? "New Date Proposal! 💌" : "Waiting for " + getPartnerName();
-        else pill.textContent = "Declined";
-        cardHead.appendChild(pill);
-
-        if (ev.status === "accepted") {
-          var minis = el("div", "minis");
-          minis.appendChild(avatarNode("a", "mini")); minis.appendChild(avatarNode("b", "mini"));
-          cardHead.appendChild(minis);
-        }
-        card.appendChild(cardHead);
-
-        var cardBody = el("div", "evcard-body");
-        var main = el("div", "main");
-        main.appendChild(el("div", "evtitle", ev.title));
-        main.appendChild(el("div", "evtime", timeText(ev)));
-        cardBody.appendChild(main);
-        card.appendChild(cardBody);
-
-        if (ev.status === "pending") {
-          var msg = el("div", "evpersonal-msg" + (incoming ? "" : " waiting"));
-          msg.textContent = incoming
-            ? "💌 " + getPartnerName() + " wants to take you on a date!"
-            : "✨ You asked " + getPartnerName() + ". Waiting for them to say yes!";
-          card.appendChild(msg);
-        } else if (ev.status === "accepted") {
-          card.appendChild(el("div", "evpersonal-msg", acceptedDateMessage(ev)));
-        }
-
-        card.addEventListener("click", function () { openDetail(ev.id); });
-        card.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openDetail(ev.id); } });
-        wrap.appendChild(card);
-
-        // Accept / Decline appear ONLY for the person who was asked
-        if (incoming) {
-          var row = el("div", "answer");
-          var yes = el("button", "btn primary grow", "Accept 💕"); yes.type = "button";
-          yes.addEventListener("click", function () { answer(ev.id, "accepted"); });
-          var no = el("button", "btn grow", "Decline"); no.type = "button";
-          no.addEventListener("click", function () { answer(ev.id, "declined"); });
-          row.appendChild(yes); row.appendChild(no); wrap.appendChild(row);
-        }
-        return wrap;
-      }
-
       function buildTimeline(ul, groups, emptyText) {
         ul.textContent = "";
         if (!groups.length) {
@@ -275,386 +194,7 @@
         });
       }
 
-      function renderUpcoming() {
-        var t = today();
-        var up = state.events.filter(function (e) { return e.date >= t && e.status !== "declined"; }).sort(cmp).slice(0, 10);
-        $("planCountBadge").textContent = up.length ? (up.length + (up.length === 1 ? " date" : " dates")) : "";
-        var groups = [];
-        up.forEach(function (e) {
-          var last = groups[groups.length - 1];
-          if (last && last.date === e.date) last.events.push(e); else groups.push({ date: e.date, events: [e] });
-        });
-        buildTimeline($("upList"), groups, "No plans scheduled yet. Tap 'Plan a Date' to surprise " + getPartnerName() + "! 💕");
-      }
-
       /* Calendar */
-      function renderCalendar() {
-        var grid = $("grid"); grid.textContent = "";
-        var first = new Date(state.year, state.month, 1);
-        var offset = (first.getDay() + 6) % 7;
-        var dim = new Date(state.year, state.month + 1, 0).getDate();
-        var rows = Math.ceil((offset + dim) / 7);
-        $("monthLabel").textContent = first.toLocaleDateString("en-AU", { month: "long", year: "numeric" });
-        var byDate = {};
-        state.events.forEach(function (e) {
-          if (e.status === "declined") return;
-          var s = byDate[e.date] || (byDate[e.date] = { acc: 0, pen: 0 });
-          if (e.status === "accepted") s.acc++; else s.pen++;
-        });
-        var t = today();
-        for (var i = 0; i < rows * 7; i++) {
-          var d = new Date(state.year, state.month, 1 - offset + i);
-          var ds = ymd(d), s = byDate[ds];
-          var cls = "day" + (d.getMonth() !== state.month ? " out" : "") + (s ? " has" : "") + (ds === t ? " today" : "") + (ds === state.selected ? " sel" : "");
-          var b = el("button", cls); b.type = "button";
-          b.textContent = String(d.getDate());
-          if (ds === state.selected) b.setAttribute("aria-pressed", "true");
-          if (s) b.appendChild(el("span", "dot" + (s.acc ? "" : " hollow")));
-          b.addEventListener("click", (function (dateStr) {
-            return function () {
-              state.selected = dateStr;
-              var dd = parseYmd(dateStr); state.year = dd.getFullYear(); state.month = dd.getMonth();
-              renderCalendar(); renderDayList();
-            };
-          })(ds));
-          grid.appendChild(b);
-        }
-        var cur = new Date();
-        $("todayBtn").hidden = (state.selected === t && state.year === cur.getFullYear() && state.month === cur.getMonth());
-      }
-
-      function renderDayList() {
-        var evs = state.events.filter(function (e) { return e.date === state.selected; }).sort(cmp);
-        buildTimeline($("dayList"), [{ date: state.selected, events: evs }], "Nothing scheduled for this day. Tap + to plan something!");
-      }
-
-      function htmlSafe(value) {
-        return String(value == null ? "" : value).replace(/[&<>"']/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]; });
-      }
-      function memoryEvent(eventId) { return state.events.find(function (e) { return e.id === eventId; }); }
-      function boothPhotoIds(booth) { return Array.isArray(booth && booth.photoIds) ? booth.photoIds.slice(0, 4) : []; }
-      function memoryPhotoUrl(photo) { return photo && (photo.imageUrl || photo.imageData) || ""; }
-      function boothPhotoUrl(booth, id) {
-        var photo = state.memoryPhotos.find(function (p) { return p.id === id; });
-        return memoryPhotoUrl(photo) || (booth && booth.photoSnapshots && booth.photoSnapshots[id]) || "";
-      }
-      function boothIsFinal(booth) {
-        var count = boothPhotoIds(booth).length;
-        return count >= 3 && count <= 4;
-      }
-      function boothStageHeight(ids, availableWidth) {
-        var stageWidth = Math.min(560, Math.max(280, availableWidth || window.innerWidth - 48));
-        var stripWidth = stageWidth <= 380 ? .32 : .30;
-        var frameHeight = (stageWidth * stripWidth - (stageWidth <= 380 ? 12 : 18)) * .75;
-        return Math.max(360, Math.ceil(95 + ids.length * (frameHeight + 6)));
-      }
-      function renderBoothMainCard(ids, booth, event, note, editable) {
-        var heroUrl = ids[0] ? boothPhotoUrl(booth, ids[0]) : "";
-        var html = '<div class="booth-memory-card"><div class="booth-card-layout"><div class="booth-collage">';
-        html += heroUrl ? '<img class="booth-collage-hero" src="' + htmlSafe(heroUrl) + '" alt="Main keepsake photo">' : '<div class="booth-empty-slot booth-collage-hero">Your photo</div>';
-        html += '<div class="booth-collage-thumbs">';
-        for (var i = 1; i <= 3; i++) {
-          var thumbUrl = ids[i] ? boothPhotoUrl(booth, ids[i]) : "";
-          html += thumbUrl ? '<img src="' + htmlSafe(thumbUrl) + '" alt="Keepsake photo ' + (i + 1) + '">' : '<span class="booth-empty-thumb" aria-hidden="true"></span>';
-        }
-        html += '</div></div><div class="booth-card-note"' + (editable ? ' contenteditable="true" role="textbox" aria-multiline="true" aria-label="Write a note for this photo booth" data-placeholder="Write a little note to remember this day…"' : '') + '>' + (editable ? htmlSafe(note || "") : htmlSafe(note || 'A little day to remember.')) + '</div></div><div class="booth-card-footer"><span class="booth-card-title">' + htmlSafe(event.title) + '</span><span class="booth-card-date">' + htmlSafe(longDate(event.date)) + '</span></div></div>';
-        return html;
-      }
-      function renderBoothPreview(event, booth) {
-        var ids = boothPhotoIds(booth), height = boothStageHeight(ids, Math.min(560, window.innerWidth * .94));
-        var html = '<button type="button" class="mem-booth-preview" data-mem="booth" data-event="' + htmlSafe(event.id) + '" aria-label="Edit photo booth for ' + htmlSafe(event.title) + '"><div class="booth-stage" style="height:' + height + 'px">' + renderBoothMainCard(ids, booth, event, booth.note, false) + '<div class="booth-strip"><div class="booth-strip-photos">';
-        ids.forEach(function (id, index) {
-          var photoUrl = boothPhotoUrl(booth, id);
-          if (photoUrl) html += '<div class="booth-strip-item"><img class="booth-strip-photo" src="' + htmlSafe(photoUrl) + '" alt="Photo booth frame ' + (index + 1) + '"></div>';
-        });
-        return html + '</div><div class="booth-strip-footer"><span>' + htmlSafe(event.title) + '</span><span>' + htmlSafe(longDate(event.date)) + '</span></div></div></div></button>';
-      }
-      function beginBooth(eventId, selectedPhotoIds) {
-        var saved = state.memoryBooths[eventId] || { eventId: eventId, photoIds: [], note: "", revision: 0, approvals: {} };
-        var ids = boothPhotoIds(saved).slice();
-        (selectedPhotoIds || []).forEach(function (id) { if (ids.indexOf(id) < 0) ids.push(id); });
-        if (ids.length > 4) { toast("This booth can hold up to 4 photos. Remove a photo first."); return false; }
-        state.memoryEventId = eventId;
-        state.memoryDraft = { photoIds: ids, note: saved.note || "" };
-        state.memorySelectedPhotoIds = [];
-        state.memoryMode = "booth"; renderMemories(); return true;
-      }
-      function saveBoothDraft() {
-        var eventId = state.memoryEventId, draft = state.memoryDraft;
-        if (!eventId || !draft) return Promise.resolve();
-        if (draft.photoIds.length < 3 || draft.photoIds.length > 4) { toast("Choose 3 or 4 photos for your booth."); return Promise.resolve(); }
-        var isNewBooth = !state.memoryBooths[eventId];
-        return window.coupleApp.updateMemoryBooth(eventId, function (current) {
-          current = current || { eventId: eventId, photoIds: [], note: "", revision: 0, approvals: {} };
-          var snapshots = Object.assign({}, current.photoSnapshots || {});
-          draft.photoIds.forEach(function (id) { var photo = state.memoryPhotos.find(function (p) { return p.id === id; }); if (photo && memoryPhotoUrl(photo)) snapshots[id] = memoryPhotoUrl(photo); });
-          var changed = JSON.stringify(Array.isArray(current.photoIds) ? current.photoIds : []) !== JSON.stringify(draft.photoIds) || (current.note || "") !== draft.note;
-          if (!changed && JSON.stringify(snapshots) === JSON.stringify(current.photoSnapshots || {})) return current;
-          return { eventId: eventId, photoIds: draft.photoIds.slice(), photoSnapshots: snapshots, note: draft.note.slice(0, 500), revision: (Number(current.revision) || 0) + (changed ? 1 : 0), approvals: changed ? {} : (current.approvals || {}), updatedBy: state.myId || null, updatedAt: Date.now() };
-        }).then(function (saved) {
-          state.memoryBooths[eventId] = saved;
-          state.memoryDraft = { photoIds: boothPhotoIds(saved).slice(), note: saved.note || "" };
-          toast(isNewBooth ? "Your photo booth is created and saved 💕" : "Photo booth saved 💕"); renderMemories(); return saved;
-        }).catch(function () { toast("Could not save the booth. Check your connection and try again."); });
-      }
-      var boothDragClickUntil = 0;
-      function reorderBoothPhoto(from, to) {
-        var ids = state.memoryDraft && state.memoryDraft.photoIds;
-        if (!ids || from < 0 || to < 0 || from >= ids.length || to >= ids.length || from === to) return;
-        var moved = ids.splice(from, 1)[0]; ids.splice(to, 0, moved);
-        renderMemories();
-      }
-      function wireBoothPhotoDrag(root) {
-        var strip = root.querySelector(".booth-strip-photos"); if (!strip) return;
-        var nativeFrom = -1, pointer = null;
-        strip.addEventListener("dragstart", function (event) {
-          var item = event.target.closest(".booth-strip-item"); if (!item) return;
-          nativeFrom = Number(item.getAttribute("data-booth-index")); item.classList.add("is-dragging");
-          if (event.dataTransfer) { event.dataTransfer.effectAllowed = "move"; event.dataTransfer.setData("text/plain", String(nativeFrom)); }
-        });
-        strip.addEventListener("dragover", function (event) { if (event.target.closest(".booth-strip-item")) event.preventDefault(); });
-        strip.addEventListener("drop", function (event) {
-          var item = event.target.closest(".booth-strip-item"); if (!item) return;
-          event.preventDefault(); reorderBoothPhoto(nativeFrom, Number(item.getAttribute("data-booth-index"))); nativeFrom = -1;
-        });
-        strip.addEventListener("dragend", function () { nativeFrom = -1; strip.querySelectorAll(".is-dragging").forEach(function (item) { item.classList.remove("is-dragging"); }); });
-        strip.addEventListener("pointerdown", function (event) {
-          var item = event.target.closest(".booth-strip-item");
-          if (!item || event.target.closest("button.booth-photo-delete")) return;
-          var index = Number(item.getAttribute("data-booth-index"));
-          pointer = { id: event.pointerId, from: index, to: index, x: event.clientX, y: event.clientY, dragging: false };
-        });
-        strip.addEventListener("pointermove", function (event) {
-          if (!pointer || pointer.id !== event.pointerId) return;
-          if (!pointer.dragging && Math.hypot(event.clientX - pointer.x, event.clientY - pointer.y) > 10) {
-            pointer.dragging = true;
-            var origin = strip.querySelector('[data-booth-index="' + pointer.from + '"]'); if (origin) origin.classList.add("is-dragging");
-          }
-          if (!pointer.dragging) return;
-          event.preventDefault();
-          strip.querySelectorAll(".is-drop-target").forEach(function (item) { item.classList.remove("is-drop-target"); });
-          var target = document.elementFromPoint(event.clientX, event.clientY), item = target && target.closest(".booth-strip-item");
-          if (item && strip.contains(item)) { pointer.to = Number(item.getAttribute("data-booth-index")); item.classList.add("is-drop-target"); }
-        });
-        function finishPointer(event) {
-          if (!pointer || pointer.id !== event.pointerId) return;
-          var active = pointer; pointer = null;
-          strip.querySelectorAll(".is-dragging,.is-drop-target").forEach(function (item) { item.classList.remove("is-dragging", "is-drop-target"); });
-          if (active.dragging) { boothDragClickUntil = Date.now() + 400; reorderBoothPhoto(active.from, active.to); }
-        }
-        strip.addEventListener("pointerup", finishPointer);
-        strip.addEventListener("pointercancel", finishPointer);
-      }
-      function renderMemories() {
-        var root = $("memoriesContent"); if (!root) return;
-        var pastDateEvents = state.events.filter(function (e) { return e.status === "accepted" && e.date < today(); }).sort(function (a, b) { return b.date.localeCompare(a.date); });
-        var boothEvents = state.events.filter(function (e) { return e.status === "accepted" && boothPhotoIds(state.memoryBooths[e.id]).length > 0; }).sort(function (a, b) { return b.date.localeCompare(a.date); });
-        var acceptedDates = state.events.filter(function (e) { return e.status === "accepted"; }).sort(function (a, b) { return a.date.localeCompare(b.date); });
-        if (state.memoryMode === "dates") {
-          $("memSubtitle").textContent = "Past dates are ready for more memories. Swipe through your photo booths.";
-          var out = '';
-          if (pastDateEvents.length) {
-            out += '<h3 class="mem-section-title">Past dates · add photos</h3>';
-            pastDateEvents.forEach(function (ev) {
-              out += '<article class="mem-card"><div class="mem-past-date"><div><h3>' + htmlSafe(ev.title) + '</h3><p class="mem-hint">' + htmlSafe(longDate(ev.date)) + '</p></div><button class="mem-button primary" data-mem="booth" data-event="' + htmlSafe(ev.id) + '">Add photos</button></div></article>';
-            });
-          }
-          out += '<div class="mem-card"><div class="mem-date"><div><h3>Your shared photo pile</h3><p>' + state.memoryPhotos.length + ' little moments saved so far</p></div><button class="mem-button" data-mem="pile">Open pile</button></div></div>';
-          if (boothEvents.length) {
-            out += '<h3 class="mem-section-title">Your photo booths</h3><div class="mem-booths-scroll">';
-            boothEvents.forEach(function (ev) { out += renderBoothPreview(ev, state.memoryBooths[ev.id]); });
-            out += '</div>';
-          }
-          if (!pastDateEvents.length && !boothEvents.length) out += '<div class="mem-card mem-empty">Your accepted dates will show up here after they happen. ✨</div>';
-          root.innerHTML = out; return;
-        }
-        if (state.memoryMode === "pile") {
-          $("memSubtitle").textContent = "A shared, happily messy pile of photos from your days together.";
-          var hasBoothDraft = !!(state.memoryEventId && state.memoryDraft);
-          var pile = '<div class="mem-actions"><button class="mem-button" data-mem="' + (hasBoothDraft ? 'booth-return' : 'back') + '">← ' + (hasBoothDraft ? 'Photo booth' : 'Dates') + '</button><button class="mem-button primary" type="button" data-mem="choose-pile-photos">Add photos</button>';
-          if (hasBoothDraft) pile += '<button class="mem-button" data-mem="add-selected">Add selected to booth (' + state.memorySelectedPhotoIds.length + ')</button>';
-          else pile += '<button class="mem-button" data-mem="create-booth" ' + (state.memorySelectedPhotoIds.length < 3 ? 'disabled' : '') + '>Create photo booth</button>';
-          pile += '</div>';
-          if (!state.memoryPhotos.length) pile += '<div class="mem-card mem-empty">Your photo pile is waiting for its first little moment. 📷</div>';
-          else {
-            var pileWidth = Math.max(200, root.clientWidth - 36), columns = Math.max(2, Math.floor((pileWidth + 12) / 112));
-            var rowsVisible = Math.max(1, Math.floor((window.innerHeight * .6 - 32 + 12) / 128));
-            var crowded = state.memoryPhotos.length > columns * rowsVisible;
-            pile += '<div class="mem-pile' + (crowded ? ' is-crowded' : '') + '">';
-            state.memoryPhotos.forEach(function (photo, i) {
-              var selected = state.memorySelectedPhotoIds.indexOf(photo.id) >= 0;
-              pile += '<div class="pile-item' + (selected ? ' is-selected' : '') + '" style="--tilt:' + ((i % 5) - 2) * 2 + 'deg;z-index:' + (i + 1) + '"><button type="button" class="pile-photo' + (selected ? ' is-selected' : '') + '" data-mem="toggle-photo" data-photo-id="' + htmlSafe(photo.id) + '" aria-pressed="' + (selected ? 'true' : 'false') + '" aria-label="' + (selected ? 'Deselect' : 'Select') + ' photo ' + (i + 1) + '"><img src="' + htmlSafe(memoryPhotoUrl(photo)) + '" alt="A shared memory photo"></button><button type="button" class="pile-delete"' + (selected ? '' : ' hidden') + ' data-mem="delete-photo" data-photo-id="' + htmlSafe(photo.id) + '" aria-label="Delete photo ' + (i + 1) + '" title="Delete photo">×</button></div>';
-            });
-            pile += '</div><p class="mem-hint">Select 3–4 photos to make your photo booth · ' + state.memorySelectedPhotoIds.length + ' selected</p>';
-          }
-          root.innerHTML = pile;
-          return;
-        }
-        if (state.memoryMode === "choose-date") {
-          $("memSubtitle").textContent = "Choose the date to create your photo booth for.";
-          var chooseDate = '<div class="mem-actions"><button class="mem-button" data-mem="pile">← Photo pile</button></div>';
-          if (!acceptedDates.length) chooseDate += '<div class="mem-card mem-empty">Accept a date first, then you can save a photo booth for it. ✨</div>';
-          acceptedDates.forEach(function (ev) {
-            var saved = state.memoryBooths[ev.id], count = boothPhotoIds(saved).length;
-            chooseDate += '<article class="mem-card"><div class="mem-date"><div><h3>' + htmlSafe(ev.title) + '</h3><p>' + htmlSafe(longDate(ev.date)) + (count ? ' · ' + count + ' photos already' : '') + '</p></div><button class="mem-button primary" data-mem="select-event" data-event="' + htmlSafe(ev.id) + '">Create booth for this date</button></div></article>';
-          });
-          root.innerHTML = chooseDate; return;
-        }
-        var ev = memoryEvent(state.memoryEventId);
-        if (!ev) { state.memoryMode = "dates"; renderMemories(); return; }
-        var savedBooth = state.memoryBooths[ev.id] || { revision: 0, approvals: {} };
-        var draft = state.memoryDraft || { photoIds: boothPhotoIds(savedBooth).slice(), note: savedBooth.note || "" };
-        var ids = draft.photoIds;
-        $("memSubtitle").textContent = htmlSafe(ev.title) + ' · ' + longDate(ev.date);
-        var editor = '<div class="mem-actions"><button class="mem-button" data-mem="back">← Dates</button><button class="mem-button" data-mem="pile">Open photo pile</button></div>';
-        editor += '<p class="mem-hint">Drag the frames to rearrange your photo booth.</p>';
-        var stageHeight = boothStageHeight(ids, root.clientWidth);
-        editor += '<div class="booth-stage" style="height:' + stageHeight + 'px">' + renderBoothMainCard(ids, savedBooth, ev, draft.note, true) + '<div class="booth-strip"><div class="booth-strip-photos">';
-        ids.forEach(function (id, index) {
-          var photoUrl = boothPhotoUrl(savedBooth, id);
-          if (photoUrl) editor += '<div class="booth-strip-item' + (state.memorySelectedBoothPhotoId === id ? ' is-selected' : '') + '" data-booth-index="' + index + '" draggable="true"><button type="button" class="booth-photo-pick" data-mem="booth-select-photo" data-photo-id="' + htmlSafe(id) + '" aria-label="Select photo ' + (index + 1) + '"><img class="booth-strip-photo" src="' + htmlSafe(photoUrl) + '" alt="Photo booth frame ' + (index + 1) + '"></button><button type="button" class="booth-photo-delete"' + (state.memorySelectedBoothPhotoId === id ? '' : ' hidden') + ' data-mem="remove" data-index="' + index + '" aria-label="Remove photo ' + (index + 1) + ' from booth">×</button></div>';
-        });
-        editor += '</div><div class="booth-strip-footer"><span>' + htmlSafe(ev.title) + '</span><span>' + htmlSafe(longDate(ev.date)) + '</span></div></div></div>';
-        editor += '<div class="mem-actions"><button class="mem-button" type="button" data-mem="choose-booth-photos">Add a photo</button><button class="mem-button primary" data-mem="save">Save booth</button></div>';
-        if (ids.length < 3 || ids.length > 4) editor += '<p class="mem-hint">Pick ' + Math.max(0, 3 - ids.length) + ' more photo' + (3 - ids.length === 1 ? '' : 's') + ' to make your booth.</p>';
-        editor += '<div class="mem-card"><strong>' + (ids.length >= 3 && ids.length <= 4 ? 'Your photo booth is ready ✨' : 'Finish your photo booth') + '</strong><p class="mem-hint">Your booth is saved and available from the Memories list.</p>';
-        editor += '<div class="mem-actions">' + (ids.length >= 3 && ids.length <= 4 ? '<button class="mem-button primary" data-mem="export">Export photo booth</button>' : '<button class="mem-button" disabled>Choose 3 or 4 photos to finish</button>') + '</div></div>';
-        root.innerHTML = editor;
-        var noteInput = root.querySelector('.booth-card-note[contenteditable="true"]');
-        noteInput.addEventListener("input", function () {
-          if (!state.memoryDraft) return;
-          var value = (noteInput.innerText || "").replace(/\n+$/, "").slice(0, 500);
-          if (value !== noteInput.innerText.replace(/\n+$/, "")) noteInput.textContent = value;
-          state.memoryDraft.note = value;
-        });
-        wireBoothPhotoDrag(root);
-      }
-
-      function compressedMemoryImage(file, onReady, onError) {
-        readProfilePhoto(file, function (data) {
-          var img = new Image();
-          img.onload = function () {
-            try {
-              var scale = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight));
-              var canvas = document.createElement("canvas");
-              canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
-              canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
-              canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
-              onReady(canvas.toDataURL("image/jpeg", 0.85));
-            } catch (e) { onError("Could not prepare that photo. Try another image."); }
-          };
-          img.onerror = function () { onError("Could not read that photo."); };
-          img.src = data;
-        }, onError);
-      }
-      function wireMemoryUpload(input, addToBooth) {
-        if (!input) return;
-        input.addEventListener("change", function () {
-          var files = input.files;
-          if (files && files.length) uploadMemoryFiles(files, addToBooth);
-          input.value = "";
-        });
-      }
-      function uploadMemoryFiles(files, addToBooth) {
-        var selected = Array.prototype.slice.call(files || []);
-        var list = selected.filter(function (f) { return /^image\//i.test(f.type) || /\.(heic|heif)$/i.test(f.name || ""); });
-        if (!list.length) { if (selected.length) toast("Choose a JPG, PNG, HEIC, or HEIF photo."); return; }
-        if (addToBooth && state.memoryDraft && state.memoryDraft.photoIds.length + list.length > 4) { toast("A booth can hold up to 4 photos."); return; }
-        var index = 0, uploaded = 0;
-        showSyncIndicator("Preparing photos…");
-        function next() {
-          if (index >= list.length) {
-            hideSyncIndicator();
-            if (uploaded) { toast(uploaded === 1 ? "Photo added to your shared pile 📷" : uploaded + " photos added to your shared pile 📷"); renderMemories(); }
-            return;
-          }
-          var file = list[index++];
-          showSyncIndicator("Preparing photo " + index + " of " + list.length + "…");
-          compressedMemoryImage(file, function (imageData) {
-            showSyncIndicator("Saving photo " + index + " of " + list.length + "…");
-            window.coupleApp.saveMemoryPhoto(imageData, state.myId).then(function (result) {
-              uploaded++;
-              if (addToBooth && state.memoryDraft && state.memoryDraft.photoIds.length < 4) state.memoryDraft.photoIds.push(result.id);
-              next();
-            }).catch(function (err) {
-              hideSyncIndicator();
-              console.error("Memory photo upload failed:", err);
-              var code = err && err.code || "", stage = err && err.memoryStage || "Photo upload";
-              var detail = (err && (err.serverResponse || err.message)) || code;
-              if (err && err.message === "firebase-unavailable") toast("Firebase did not connect, so this photo was not saved to the cloud.");
-              else if (code === "PERMISSION_DENIED" || code === "database/permission-denied") toast("Realtime Database blocked the photo save. Check write access under /memories.");
-              else toast(stage + " failed" + (code ? " (" + code + ")" : (detail ? ": " + detail : ". Check Firebase settings.")));
-            });
-          }, function (message) { hideSyncIndicator(); toast(message); next(); });
-        }
-        next();
-      }
-      function removeMemoryPhotoFromPile(photoId, askFirst) {
-        var photo = state.memoryPhotos.find(function (p) { return p.id === photoId; });
-        if (!photo || (askFirst && !window.confirm("Delete this photo from your shared pile? This also removes it from Firebase."))) return Promise.resolve(false);
-        showSyncIndicator("Removing photo…");
-        var backups = Object.keys(state.memoryBooths).filter(function (id) { return boothPhotoIds(state.memoryBooths[id]).indexOf(photoId) >= 0; });
-        return backups.reduce(function (chain, eventId) {
-          return chain.then(function () {
-            return window.coupleApp.updateMemoryBooth(eventId, function (booth) {
-              if (!booth || !boothPhotoIds(booth).includes(photoId)) return booth;
-              booth.photoSnapshots = Object.assign({}, booth.photoSnapshots || {});
-              if (!booth.photoSnapshots[photoId]) booth.photoSnapshots[photoId] = memoryPhotoUrl(photo);
-              return booth;
-            }).then(function (saved) { state.memoryBooths[eventId] = saved; });
-          });
-        }, Promise.resolve()).then(function () {
-          return state.memPhotoCol.doc(photoId).delete();
-        }).then(function () {
-          state.memoryPhotos = state.memoryPhotos.filter(function (p) { return p.id !== photoId; });
-          state.memorySelectedPhotoIds = state.memorySelectedPhotoIds.filter(function (id) { return id !== photoId; });
-          hideSyncIndicator(); if (askFirst) toast("Photo removed from your shared pile."); renderMemories(); return true;
-        }).catch(function (error) {
-          hideSyncIndicator(); console.error("Memory photo delete failed:", error);
-          toast("Could not delete the photo. Check Firebase write access and try again.");
-          return false;
-        });
-      }
-      function deleteMemoryPhoto(photoId) { return removeMemoryPhotoFromPile(photoId, true); }
-      function exportBooth() {
-        var event = memoryEvent(state.memoryEventId), booth = state.memoryBooths[state.memoryEventId];
-        if (!event || !boothIsFinal(booth)) { toast("Choose 3 or 4 photos for your booth first."); return; }
-        var photos = boothPhotoIds(booth).map(function (id) { return boothPhotoUrl(booth, id); }).filter(Boolean);
-        var canvas = document.createElement("canvas"), width = 900, pad = 54, gap = 20, top = 104, noteH = 170;
-        var columns = 1, rows = photos.length;
-        var photoW = width - pad * 2, photoH = photoW * .75;
-        canvas.width = width; canvas.height = top + rows * photoH + (rows - 1) * gap + noteH;
-        var ctx = canvas.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, width, canvas.height);
-        ctx.fillStyle = "#49383e"; ctx.textAlign = "center"; ctx.font = "bold 27px Georgia,serif"; ctx.fillText(event.title, width / 2, 58, width - 80);
-        function drawPhoto(i) {
-          if (i >= photos.length) {
-            var noteY = top + rows * photoH + (rows - 1) * gap + 44;
-            ctx.strokeStyle = "#eadfe2"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(pad, noteY - 26); ctx.lineTo(width - pad, noteY - 26); ctx.stroke();
-            ctx.fillStyle = "#5a454d"; ctx.textAlign = "center"; ctx.font = "italic 27px Georgia,serif";
-            var words = (booth.note || "A little day to keep forever.").split(/\s+/), line = "", lines = [], maxWidth = width - pad * 2;
-            words.forEach(function (word) { var test = line ? line + " " + word : word; if (ctx.measureText(test).width > maxWidth && line) { lines.push(line); line = word; } else line = test; }); if (line) lines.push(line);
-            lines.slice(0, 3).forEach(function (t, j) { ctx.fillText(t, width / 2, noteY + j * 38); });
-            canvas.toBlob(function (blob) {
-              if (!blob) { toast("Could not create the booth image."); return; }
-              var file = new File([blob], "our-photo-booth.png", { type: "image/png" });
-              if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) navigator.share({ files: [file], title: event.title + " photo booth" }).catch(function () {});
-              else { var link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "our-photo-booth.png"; link.click(); setTimeout(function () { URL.revokeObjectURL(link.href); }, 1000); }
-            }, "image/png");
-            return;
-          }
-          var image = new Image(); image.onload = function () {
-            var x = pad, y = top + i * (photoH + gap), targetRatio = photoW / photoH, sourceRatio = image.naturalWidth / image.naturalHeight;
-            var sx = 0, sy = 0, sw = image.naturalWidth, sh = image.naturalHeight;
-            if (sourceRatio > targetRatio) { sw = image.naturalHeight * targetRatio; sx = (image.naturalWidth - sw) / 2; }
-            else { sh = image.naturalWidth / targetRatio; sy = (image.naturalHeight - sh) / 2; }
-            ctx.fillStyle = "#fff"; ctx.fillRect(x - 9, y - 9, photoW + 18, photoH + 18);
-            ctx.drawImage(image, sx, sy, sw, sh, x, y, photoW, photoH); drawPhoto(i + 1);
-          };
-          image.onerror = function () { toast("Could not load a photo for export. Try refreshing your memories."); drawPhoto(i + 1); }; image.src = photos[i];
-        }
-        drawPhoto(0);
-      }
-
       function render() {
         renderGreeting();
         renderCountdown();
@@ -1099,7 +639,7 @@
       $("memoriesContent").addEventListener("click", function (event) {
         var button = event.target.closest("[data-mem]"); if (!button) return;
         var action = button.getAttribute("data-mem"), eventId = button.getAttribute("data-event");
-        if (action === "booth-select-photo" && Date.now() < boothDragClickUntil) return;
+        if (action === "booth-select-photo" && memoriesPage.isBoothDragClickSuppressed()) return;
         if (action === "pile") { state.memorySelectedPhotoIds = []; state.memoryMode = "pile"; renderMemories(); }
         else if (action === "back") { state.memoryMode = "dates"; state.memoryEventId = null; state.memoryDraft = null; state.memorySelectedPhotoIds = []; renderMemories(); }
         else if (action === "booth-return") { state.memoryMode = "booth"; renderMemories(); }
