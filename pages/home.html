@@ -1,0 +1,60 @@
+<section id="viewHome" aria-label="Home">
+        <div class="home-hero">
+          <div class="greeting-wrap">
+            <span class="greeting-eyebrow">Our Sanctuary</span>
+            <h2 class="greeting-title" id="greetingTitle">Good evening</h2>
+            <p class="greeting-subtitle" id="greetingSubtitle">Your private plans together</p>
+          </div>
+        </div>
+
+        <div class="countwrap">
+          <section class="countcard" id="countCard" role="button" tabindex="0"
+            aria-label="Next date. Tap for details" style="cursor:pointer">
+            <div class="countcard-watermark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="115" height="115" fill="currentColor">
+                <path
+                  d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+              </svg>
+            </div>
+            <div class="cl">
+              <span class="eyebrow" id="cdEyebrow">Next Date Ahead</span>
+              <div class="big" id="cdNum">0</div>
+              <span class="cdlabel" id="cdLabel">days to go</span>
+            </div>
+            <div class="cr" id="cdRight">
+              <span class="t" id="cdTitle"></span>
+              <span class="w" id="cdWhen"></span>
+              <button class="plan" id="cdPlan" type="button" hidden>Plan our next date</button>
+            </div>
+          </section>
+        </div>
+
+        <section class="couple" aria-label="The couple">
+          <button class="person" type="button" id="personA" aria-label="First partner">
+            <span class="person-avatar-wrap"><span id="avA"></span></span>
+            <span class="pname" id="nameA"></span>
+            <span class="prole" id="roleA">Partner</span>
+          </button>
+          <div class="heart-container" aria-hidden="true">
+            <span class="heart-pulse"><svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+                <path
+                  d="M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3 4.5 6.6 4.5c2 0 3.7 1.1 5.4 3 1.7-1.9 3.4-3 5.4-3 3.6 0 5.7 3.7 4.2 7.2C19.5 16.4 12 21 12 21z" />
+              </svg></span>
+            <span class="heart-label">together</span>
+          </div>
+          <button class="person" type="button" id="personB" aria-label="Second partner">
+            <span class="person-avatar-wrap"><span id="avB"></span></span>
+            <span class="pname" id="nameB"></span>
+            <span class="prole" id="roleB">Partner</span>
+          </button>
+        </section>
+
+        <div class="sechead">
+          <div class="sechead-title-group">
+            <h2>Our Plans Together</h2>
+            <span class="plan-count-badge" id="planCountBadge"></span>
+          </div>
+          <button class="linkbtn" id="seeCal" type="button">Open calendar →</button>
+        </div>
+        <ul class="timeline" id="upList"></ul>
+      </section>

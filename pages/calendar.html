@@ -1,0 +1,23 @@
+<section id="viewCal" aria-label="Calendar" hidden>
+        <section class="monthcard">
+          <div class="mhead">
+            <button class="iconbtn flat" id="prev" type="button" aria-label="Previous month"><svg viewBox="0 0 24 24"
+                width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+                stroke-linejoin="round" aria-hidden="true">
+                <path d="M15 5l-7 7 7 7" />
+              </svg></button>
+            <h2 id="monthLabel"></h2>
+            <button class="iconbtn flat" id="next" type="button" aria-label="Next month"><svg viewBox="0 0 24 24"
+                width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+                stroke-linejoin="round" aria-hidden="true">
+                <path d="M9 5l7 7-7 7" />
+              </svg></button>
+          </div>
+          <div class="dow">
+            <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+          </div>
+          <div class="mgrid" id="grid"></div>
+        </section>
+        <div class="daytools"><button class="linkbtn" id="todayBtn" type="button" hidden>Back to today</button></div>
+        <ul class="timeline" id="dayList" style="margin-top: 10px"></ul>
+      </section>
