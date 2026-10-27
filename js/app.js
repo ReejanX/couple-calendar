@@ -723,7 +723,9 @@
         else if (action === "export") {
           if (!state.memoryDraft || state.memoryDraft.photoIds.length < 3 || state.memoryDraft.photoIds.length > 4) { toast("Choose 3 or 4 photos for your booth."); return; }
           var savedBooth = state.memoryBooths[state.memoryEventId];
-          if (!savedBooth || JSON.stringify(savedBooth.photoIds || []) !== JSON.stringify(state.memoryDraft.photoIds) || (savedBooth.note || "") !== (state.memoryDraft.note || "")) { toast("Save your booth before exporting it."); return; }
+          var linkedBoothEvent = savedBooth && state.events.find(function (item) { return item.id === (savedBooth.eventId || state.memoryEventId); });
+          var savedBoothTitle = savedBooth && (savedBooth.title || (linkedBoothEvent && linkedBoothEvent.title) || "A little memory");
+          if (!savedBooth || JSON.stringify(savedBooth.photoIds || []) !== JSON.stringify(state.memoryDraft.photoIds) || (savedBooth.note || "") !== (state.memoryDraft.note || "") || savedBoothTitle !== (state.memoryDraft.title || savedBoothTitle)) { toast("Save your booth before exporting it."); return; }
           exportBooth();
         }
       });

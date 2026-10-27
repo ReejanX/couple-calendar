@@ -33,8 +33,9 @@
         var stripHeight = 95 + ids.length * (frameHeight + 6);
         return Math.ceil(Math.max(280, stripHeight) + 18);
       }
-      function renderBoothMainCard(ids, booth, event, note, editable) {
+      function renderBoothMainCard(ids, booth, event, note, editable, title) {
         var heroUrl = ids[0] ? boothPhotoUrl(booth, ids[0]) : "";
+        title = title || booth.title || event.title || "A little memory";
         var thumbCount = Math.min(3, Math.max(0, ids.length - 1));
         var html = '<div class="booth-memory-card"><div class="booth-card-layout"><div class="booth-collage">';
         if (heroUrl) html += '<img class="booth-collage-hero" src="' + htmlSafe(heroUrl) + '" alt="Main keepsake photo">';
@@ -43,27 +44,30 @@
           var thumbUrl = boothPhotoUrl(booth, ids[i]);
           if (thumbUrl) html += '<img src="' + htmlSafe(thumbUrl) + '" alt="Keepsake photo ' + (i + 1) + '">';
         }
-        html += '</div></div><div class="booth-card-note"' + (editable ? ' contenteditable="true" role="textbox" aria-multiline="true" aria-label="Write a note for this photo booth" data-placeholder="Write a little note to remember this day…"' : '') + '>' + (editable ? htmlSafe(note || "") : htmlSafe(note || 'A little day to remember.')) + '</div></div><div class="booth-card-footer"><span class="booth-card-title">' + htmlSafe(event.title) + '</span>' + (event.date ? '<span class="booth-card-date">' + htmlSafe(boothDateLabel(event)) + '</span>' : '') + '</div></div>';
+        html += '</div></div><div class="booth-card-note"' + (editable ? ' contenteditable="true" role="textbox" aria-multiline="true" aria-label="Write a note for this photo booth" data-placeholder="Write a little note to remember this day…"' : '') + '>' + (editable ? htmlSafe(note || "") : htmlSafe(note || 'A little day to remember.')) + '</div></div><div class="booth-card-footer"><span class="booth-card-title"' + (editable ? ' contenteditable="true" role="textbox" aria-label="Photo booth title" data-booth-title' : '') + '>' + htmlSafe(title) + '</span>' + (event.date ? '<span class="booth-card-date">' + htmlSafe(boothDateLabel(event)) + '</span>' : '') + '</div></div>';
         return html;
       }
       function renderBoothPreview(event, booth) {
         var ids = boothPhotoIds(booth), stageWidth = Math.min(560, window.innerWidth * .94);
         var height = boothStageHeight(ids, stageWidth);
         var boothId = booth.boothId || booth.eventId || event.id;
-        var html = '<button type="button" class="mem-booth-preview" data-mem="booth" data-event="' + htmlSafe(boothId) + '" aria-label="Edit photo booth for ' + htmlSafe(event.title) + '"><div class="booth-stage" style="height:' + height + 'px">' + renderBoothMainCard(ids, booth, event, booth.note, false) + '<div class="booth-strip"><div class="booth-strip-photos">';
+        var displayTitle = booth.title || event.title;
+        var html = '<button type="button" class="mem-booth-preview" data-mem="booth" data-event="' + htmlSafe(boothId) + '" aria-label="Edit photo booth for ' + htmlSafe(displayTitle) + '"><div class="booth-stage" style="height:' + height + 'px">' + renderBoothMainCard(ids, booth, event, booth.note, false, displayTitle) + '<div class="booth-strip"><div class="booth-strip-photos">';
         ids.forEach(function (id, index) {
           var photoUrl = boothPhotoUrl(booth, id);
           if (photoUrl) html += '<div class="booth-strip-item"><img class="booth-strip-photo" src="' + htmlSafe(photoUrl) + '" alt="Photo booth frame ' + (index + 1) + '"></div>';
         });
-        return html + '</div><div class="booth-strip-footer"><span>' + htmlSafe(event.title) + '</span>' + (event.date ? '<span>' + htmlSafe(boothDateLabel(event)) + '</span>' : '') + '</div></div></div></button>';
+        return html + '</div><div class="booth-strip-footer"><span>' + htmlSafe(displayTitle) + '</span>' + (event.date ? '<span>' + htmlSafe(boothDateLabel(event)) + '</span>' : '') + '</div></div></div></button>';
       }
       function beginBooth(eventId, selectedPhotoIds, standalone) {
-        var saved = state.memoryBooths[eventId] || { eventId: standalone ? null : eventId, boothId: eventId, title: standalone ? "A little memory" : undefined, photoIds: [], note: "", revision: 0, approvals: {} };
+        var saved = state.memoryBooths[eventId] || { eventId: standalone ? null : eventId, boothId: eventId, title: undefined, photoIds: [], note: "", revision: 0, approvals: {} };
+        var linkedEvent = memoryEvent(saved.eventId || eventId);
+        var defaultTitle = saved.title || (standalone ? "A little memory" : (linkedEvent && linkedEvent.title) || "A little memory");
         var ids = boothPhotoIds(saved).slice();
         (selectedPhotoIds || []).forEach(function (id) { if (ids.indexOf(id) < 0) ids.push(id); });
         if (ids.length > 4) { toast("This booth can hold up to 4 photos. Remove a photo first."); return false; }
         state.memoryEventId = eventId;
-        state.memoryDraft = { photoIds: ids, note: saved.note || "", eventId: saved.eventId, title: saved.title || "A little memory" };
+        state.memoryDraft = { photoIds: ids, note: saved.note || "", eventId: saved.eventId, title: defaultTitle };
         state.memoryPendingPhotoIds = [];
         state.memorySelectedPhotoIds = [];
         state.memoryMode = "booth"; renderMemories(); return true;
@@ -77,9 +81,10 @@
           current = current || state.memoryBooths[eventId] || { boothId: eventId, eventId: draft.eventId === undefined ? eventId : draft.eventId, title: draft.title || "A little memory", photoIds: [], note: "", revision: 0, approvals: {} };
           var snapshots = Object.assign({}, current.photoSnapshots || {});
           draft.photoIds.forEach(function (id) { var photo = state.memoryPhotos.find(function (p) { return p.id === id; }); if (photo && memoryPhotoUrl(photo)) snapshots[id] = memoryPhotoUrl(photo); });
-          var changed = JSON.stringify(Array.isArray(current.photoIds) ? current.photoIds : []) !== JSON.stringify(draft.photoIds) || (current.note || "") !== draft.note;
+          var boothTitle = (draft.title || "A little memory").slice(0, 80);
+          var changed = JSON.stringify(Array.isArray(current.photoIds) ? current.photoIds : []) !== JSON.stringify(draft.photoIds) || (current.note || "") !== draft.note || (current.title || "") !== boothTitle;
           if (!changed && JSON.stringify(snapshots) === JSON.stringify(current.photoSnapshots || {})) return current;
-          return Object.assign({}, current, { boothId: eventId, eventId: current.eventId === undefined ? (draft.eventId === undefined ? eventId : draft.eventId) : current.eventId, title: current.title || draft.title || "A little memory", photoIds: draft.photoIds.slice(), photoSnapshots: snapshots, note: draft.note.slice(0, 500), revision: (Number(current.revision) || 0) + (changed ? 1 : 0), approvals: changed ? {} : (current.approvals || {}), updatedBy: state.myId || null, updatedAt: Date.now() });
+          return Object.assign({}, current, { boothId: eventId, eventId: current.eventId === undefined ? (draft.eventId === undefined ? eventId : draft.eventId) : current.eventId, title: boothTitle, photoIds: draft.photoIds.slice(), photoSnapshots: snapshots, note: draft.note.slice(0, 500), revision: (Number(current.revision) || 0) + (changed ? 1 : 0), approvals: changed ? {} : (current.approvals || {}), updatedBy: state.myId || null, updatedAt: Date.now() });
         }).then(function (saved) {
           state.memoryBooths[eventId] = saved;
           state.memoryDraft = { photoIds: boothPhotoIds(saved).slice(), note: saved.note || "", eventId: saved.eventId, title: saved.title || "A little memory" };
@@ -198,15 +203,15 @@
         var editor = '<div class="mem-actions"><button class="mem-button" data-mem="back">← Dates</button><button class="mem-button" data-mem="pile">Open photo pile</button></div>';
         editor += '<p class="mem-hint">Drag the frames to rearrange your photo booth.</p>';
         var stageWidth = root.clientWidth, stageHeight = boothStageHeight(ids, stageWidth);
-        editor += '<div class="booth-stage" style="height:' + stageHeight + 'px">' + renderBoothMainCard(ids, savedBooth, ev, draft.note, true) + '<div class="booth-strip"><div class="booth-strip-photos">';
+        editor += '<div class="booth-stage" style="height:' + stageHeight + 'px">' + renderBoothMainCard(ids, savedBooth, ev, draft.note, true, draft.title || ev.title) + '<div class="booth-strip"><div class="booth-strip-photos">';
         ids.forEach(function (id, index) {
           var photoUrl = boothPhotoUrl(savedBooth, id);
           if (photoUrl) editor += '<div class="booth-strip-item' + (state.memorySelectedBoothPhotoId === id ? ' is-selected' : '') + '" data-booth-index="' + index + '" draggable="true"><button type="button" class="booth-photo-pick" data-mem="booth-select-photo" data-photo-id="' + htmlSafe(id) + '" aria-label="Select photo ' + (index + 1) + '"><img class="booth-strip-photo" src="' + htmlSafe(photoUrl) + '" alt="Photo booth frame ' + (index + 1) + '"></button><button type="button" class="booth-photo-delete"' + (state.memorySelectedBoothPhotoId === id ? '' : ' hidden') + ' data-mem="remove" data-index="' + index + '" aria-label="Remove photo ' + (index + 1) + ' from booth">×</button></div>';
         });
-        editor += '</div><div class="booth-strip-footer"><span>' + htmlSafe(ev.title) + (ev.date ? '</span><span>' + htmlSafe(boothDateLabel(ev)) : '') + '</span></div></div></div>';
+        editor += '</div><div class="booth-strip-footer"><span>' + htmlSafe(draft.title || ev.title) + (ev.date ? '</span><span>' + htmlSafe(boothDateLabel(ev)) : '') + '</span></div></div></div>';
         editor += '<div class="mem-actions"><button class="mem-button" type="button" data-mem="choose-booth-photos">Add a photo</button>' + (!ev.date ? '<button class="mem-button" data-mem="start-link-date">Link a past date</button>' : '') + '<button class="mem-button primary" data-mem="save">Save booth</button></div>';
         if (ids.length < 3 || ids.length > 4) editor += '<p class="mem-hint">Pick ' + Math.max(0, 3 - ids.length) + ' more photo' + (3 - ids.length === 1 ? '' : 's') + ' to make your booth.</p>';
-        var isSavedDraft = !!state.memoryBooths[state.memoryEventId] && JSON.stringify(boothPhotoIds(state.memoryBooths[state.memoryEventId])) === JSON.stringify(ids) && (state.memoryBooths[state.memoryEventId].note || "") === (draft.note || "");
+        var isSavedDraft = !!state.memoryBooths[state.memoryEventId] && JSON.stringify(boothPhotoIds(state.memoryBooths[state.memoryEventId])) === JSON.stringify(ids) && (state.memoryBooths[state.memoryEventId].note || "") === (draft.note || "") && (state.memoryBooths[state.memoryEventId].title || ev.title) === (draft.title || ev.title);
         editor += '<div class="mem-card"><strong>' + (ids.length >= 3 && ids.length <= 4 ? (isSavedDraft ? 'Your photo booth is ready ✨' : 'Your photo booth is ready to save ✨') : 'Finish your photo booth') + '</strong><p class="mem-hint">' + (isSavedDraft ? 'Your booth is saved and available from the Memories list.' : 'It will be added to Memories when you save it.') + '</p>';
         editor += '<div class="mem-actions">' + (ids.length >= 3 && ids.length <= 4 ? '<button class="mem-button primary" data-mem="export">Export photo booth</button>' : '<button class="mem-button" disabled>Choose 3 or 4 photos to finish</button>') + '</div></div>';
         root.innerHTML = editor;
@@ -216,6 +221,14 @@
           var value = (noteInput.innerText || "").replace(/\n+$/, "").slice(0, 500);
           if (value !== noteInput.innerText.replace(/\n+$/, "")) noteInput.textContent = value;
           state.memoryDraft.note = value;
+        });
+        var titleInput = root.querySelector('[data-booth-title]');
+        titleInput.addEventListener("keydown", function (event) { if (event.key === "Enter") event.preventDefault(); });
+        titleInput.addEventListener("input", function () {
+          if (!state.memoryDraft) return;
+          var value = (titleInput.innerText || "").replace(/[\r\n]+/g, " ").slice(0, 80);
+          if (value !== titleInput.innerText) titleInput.textContent = value;
+          state.memoryDraft.title = value;
         });
         wireBoothPhotoDrag(root);
       }
@@ -318,7 +331,7 @@
         var photoW = width - pad * 2, photoH = photoW * .75;
         canvas.width = width; canvas.height = top + rows * photoH + (rows - 1) * gap + noteH;
         var ctx = canvas.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, width, canvas.height);
-        ctx.fillStyle = "#49383e"; ctx.textAlign = "center"; ctx.font = "bold 27px Georgia,serif"; ctx.fillText(event.title, width / 2, 58, width - 80);
+        ctx.fillStyle = "#49383e"; ctx.textAlign = "center"; ctx.font = "bold 27px Georgia,serif"; ctx.fillText(booth.title || event.title, width / 2, 58, width - 80);
         function drawPhoto(i) {
           if (i >= photos.length) {
             var noteY = top + rows * photoH + (rows - 1) * gap + 44;
@@ -330,7 +343,7 @@
             canvas.toBlob(function (blob) {
               if (!blob) { toast("Could not create the booth image."); return; }
               var file = new File([blob], "our-photo-booth.png", { type: "image/png" });
-              if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) navigator.share({ files: [file], title: event.title + " photo booth" }).catch(function () {});
+              if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) navigator.share({ files: [file], title: (booth.title || event.title) + " photo booth" }).catch(function () {});
               else { var link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "our-photo-booth.png"; link.click(); setTimeout(function () { URL.revokeObjectURL(link.href); }, 1000); }
             }, "image/png");
             return;
