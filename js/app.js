@@ -18,7 +18,7 @@
         tab: "home", year: 0, month: 0, selected: today(),
         events: [], profile: { a: { name: "Reejan", img: "" }, b: { name: "Shreya", img: "" } }, profileExists: false,
         myId: null, evCol: null, profRef: null, memPhotoCol: null, memBoothCol: null,
-        memoryPhotos: [], memoryBooths: {}, memoryMode: "dates", memoryEventId: null, memoryDraft: null, memorySelectedPhotoIds: [], memorySelectedBoothPhotoId: null,
+        memoryPhotos: [], memoryBooths: {}, memoryMode: "dates", memoryEventId: null, memoryDraft: null, memorySelectedPhotoIds: [], memoryPendingPhotoIds: [], memorySelectedBoothPhotoId: null,
         editingId: null, detailId: null, saving: false, draft: null
       };
       (function () { var n = new Date(); state.year = n.getFullYear(); state.month = n.getMonth(); })();
@@ -646,7 +646,7 @@
         var action = button.getAttribute("data-mem"), eventId = button.getAttribute("data-event");
         if (action === "booth-select-photo" && memoriesPage.isBoothDragClickSuppressed()) return;
         if (action === "pile") { state.memorySelectedPhotoIds = []; state.memoryMode = "pile"; renderMemories(); }
-        else if (action === "back") { state.memoryMode = "dates"; state.memoryEventId = null; state.memoryDraft = null; state.memorySelectedPhotoIds = []; renderMemories(); }
+        else if (action === "back") { state.memoryMode = "dates"; state.memoryEventId = null; state.memoryDraft = null; state.memorySelectedPhotoIds = []; state.memoryPendingPhotoIds = []; renderMemories(); }
         else if (action === "booth-return") { state.memoryMode = "booth"; renderMemories(); }
         else if (action === "choose-pile-photos") $("memoryUpload").click();
         else if (action === "choose-booth-photos") $("boothAddPhoto").click();
@@ -666,6 +666,7 @@
           var selectedIds = state.memoryDraft.photoIds.slice();
           state.memorySelectedPhotoIds.forEach(function (id) { if (selectedIds.indexOf(id) < 0) selectedIds.push(id); });
           if (selectedIds.length > 4) { toast("A booth can hold up to 4 photos."); return; }
+          state.memorySelectedPhotoIds.forEach(function (id) { if (state.memoryPendingPhotoIds.indexOf(id) < 0) state.memoryPendingPhotoIds.push(id); });
           state.memoryDraft.photoIds = selectedIds; state.memorySelectedPhotoIds = []; state.memoryMode = "booth"; renderMemories();
         }
         else if (action === "create-booth") {
@@ -676,17 +677,15 @@
           var standalonePhotoIds = state.memorySelectedPhotoIds.slice();
           if (standalonePhotoIds.length < 3 || standalonePhotoIds.length > 4) { toast("Select 3 or 4 photos first."); return; }
           var standaloneId = "standalone_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
-          state.memoryBooths[standaloneId] = { boothId: standaloneId, eventId: null, title: "A little memory", date: "", photoIds: [], note: "", revision: 0, approvals: {} };
-          if (memoriesPage.beginBooth(standaloneId, standalonePhotoIds)) memoriesPage.saveBoothDraft().then(function (saved) {
-            if (!saved || !memoriesPage.boothIsFinal(saved)) return false;
-            return standalonePhotoIds.reduce(function (chain, photoId) {
-              return chain.then(function (ok) { return ok ? memoriesPage.removeMemoryPhotoFromPile(photoId, false) : false; });
-            }, Promise.resolve(true));
-          }).then(function (removed) { if (removed) toast("Your standalone booth is saved, and its photos are out of the pile ✨"); });
+          if (memoriesPage.beginBooth(standaloneId, standalonePhotoIds, true)) state.memoryPendingPhotoIds = standalonePhotoIds.slice();
         }
         else if (action === "start-link-date") { state.memoryMode = "link-date"; renderMemories(); }
         else if (action === "link-booth-date") {
           var boothIdToLink = state.memoryEventId;
+          if (!state.memoryBooths[boothIdToLink]) {
+            state.memoryDraft.eventId = eventId;
+            state.memoryMode = "booth"; renderMemories(); toast("Date selected. Save the booth to link it."); return;
+          }
           window.coupleApp.updateMemoryBooth(boothIdToLink, function (current) {
             current = current || {};
             return Object.assign({}, current, { boothId: boothIdToLink, eventId: eventId });
@@ -697,12 +696,7 @@
         }
         else if (action === "select-event") {
           var photoIdsToMove = state.memorySelectedPhotoIds.slice();
-          if (beginBooth(eventId, photoIdsToMove)) saveBoothDraft().then(function (saved) {
-            if (!saved || !boothIsFinal(saved)) return false;
-            return photoIdsToMove.reduce(function (chain, photoId) {
-              return chain.then(function (ok) { return ok ? removeMemoryPhotoFromPile(photoId, false) : false; });
-            }, Promise.resolve(true));
-          }).then(function (removed) { if (removed) toast("Your booth is saved, and its photos are out of the pile ✨"); });
+          if (memoriesPage.beginBooth(eventId, photoIdsToMove)) state.memoryPendingPhotoIds = photoIdsToMove.slice();
         }
         else if (action === "delete-photo") {
           deleteMemoryPhoto(button.getAttribute("data-photo-id"));
@@ -713,10 +707,24 @@
           if (action === "remove") { state.memoryDraft.photoIds.splice(at, 1); state.memorySelectedBoothPhotoId = null; }
           else { var to = at + Number(button.getAttribute("data-dir")); if (to >= 0 && to < state.memoryDraft.photoIds.length) { var swap = state.memoryDraft.photoIds[at]; state.memoryDraft.photoIds[at] = state.memoryDraft.photoIds[to]; state.memoryDraft.photoIds[to] = swap; } }
           renderMemories();
-        } else if (action === "save") saveBoothDraft();
+        } else if (action === "save") {
+          var pendingPhotoIds = state.memoryPendingPhotoIds.slice();
+          memoriesPage.saveBoothDraft().then(function (saved) {
+            if (!saved || !memoriesPage.boothIsFinal(saved)) return;
+            state.memoryPendingPhotoIds = [];
+            var usedPhotoIds = pendingPhotoIds.filter(function (photoId) { return saved.photoIds.indexOf(photoId) >= 0; });
+            return usedPhotoIds.reduce(function (chain, photoId) {
+              return chain.then(function () { return memoriesPage.removeMemoryPhotoFromPile(photoId, false); });
+            }, Promise.resolve()).then(function () {
+              if (usedPhotoIds.length) toast("Your booth is saved, and its photos are out of the pile ✨");
+            });
+          });
+        }
         else if (action === "export") {
           if (!state.memoryDraft || state.memoryDraft.photoIds.length < 3 || state.memoryDraft.photoIds.length > 4) { toast("Choose 3 or 4 photos for your booth."); return; }
-          saveBoothDraft().then(exportBooth);
+          var savedBooth = state.memoryBooths[state.memoryEventId];
+          if (!savedBooth || JSON.stringify(savedBooth.photoIds || []) !== JSON.stringify(state.memoryDraft.photoIds) || (savedBooth.note || "") !== (state.memoryDraft.note || "")) { toast("Save your booth before exporting it."); return; }
+          exportBooth();
         }
       });
       $("cdPlan").addEventListener("click", function (e) { e.stopPropagation(); openEvForm(null, today()); });
