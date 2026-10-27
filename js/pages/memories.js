@@ -39,12 +39,13 @@
         var thumbCount = Math.min(3, Math.max(0, ids.length - 1));
         var html = '<div class="booth-memory-card"><div class="booth-card-layout"><div class="booth-collage">';
         if (heroUrl) html += '<img class="booth-collage-hero" src="' + htmlSafe(heroUrl) + '" alt="Main keepsake photo">';
+        html += '</div><div class="booth-card-note"' + (editable ? ' contenteditable="true" role="textbox" aria-multiline="true" aria-label="Write a note for this photo booth" data-placeholder="Write a little note to remember this day…"' : '') + '>' + (editable ? htmlSafe(note || "") : htmlSafe(note || 'A little day to remember.')) + '</div></div>';
         html += '<div class="booth-collage-thumbs' + (thumbCount === 3 ? ' has-three' : '') + '">';
         for (var i = 1; i <= thumbCount; i++) {
           var thumbUrl = boothPhotoUrl(booth, ids[i]);
           if (thumbUrl) html += '<img src="' + htmlSafe(thumbUrl) + '" alt="Keepsake photo ' + (i + 1) + '">';
         }
-        html += '</div></div><div class="booth-card-note"' + (editable ? ' contenteditable="true" role="textbox" aria-multiline="true" aria-label="Write a note for this photo booth" data-placeholder="Write a little note to remember this day…"' : '') + '>' + (editable ? htmlSafe(note || "") : htmlSafe(note || 'A little day to remember.')) + '</div></div><div class="booth-card-footer"><span class="booth-card-title"' + (editable ? ' contenteditable="true" role="textbox" aria-label="Photo booth title" data-booth-title' : '') + '>' + htmlSafe(title) + '</span>' + (event.date ? '<span class="booth-card-date">' + htmlSafe(boothDateLabel(event)) + '</span>' : '') + '</div></div>';
+        html += '</div><div class="booth-card-footer"><span class="booth-card-title"' + (editable ? ' contenteditable="true" role="textbox" aria-label="Photo booth title" data-booth-title' : '') + '>' + htmlSafe(title) + '</span>' + (event.date ? '<span class="booth-card-date">' + htmlSafe(boothDateLabel(event)) + '</span>' : '') + '</div></div>';
         return html;
       }
       function renderBoothPreview(event, booth) {
@@ -149,7 +150,9 @@
           $("memSubtitle").textContent = "Your shared photo pile and photo booths live here.";
           var out = '';
           out += '<div class="mem-card"><div class="mem-date"><div><h3>Your shared photo pile</h3><p>' + state.memoryPhotos.length + ' little moments saved so far</p></div><button class="mem-button" data-mem="pile">Open pile</button></div></div>';
-          if (boothEntries.length) {
+          if (!state.memoryBoothsLoaded) {
+            out += '<h3 class="mem-section-title">Your photo booths</h3><div class="mem-card mem-loading" role="status" aria-live="polite"><span class="mem-loader" aria-hidden="true"></span><span>Gathering your photo booths…</span></div>';
+          } else if (boothEntries.length) {
             out += '<h3 class="mem-section-title">Your photo booths</h3><div class="mem-booths-scroll">';
             boothEntries.forEach(function (entry) { entry.booth.boothId = entry.id; out += renderBoothPreview(entry.event, entry.booth); });
             out += '</div>';

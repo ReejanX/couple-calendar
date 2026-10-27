@@ -10,7 +10,20 @@
   <meta name="apple-mobile-web-app-title" content="Couple Calendar">
   <meta name="theme-color" content="#FAF6F0">
   <link rel="icon" type="image/svg+xml" href="app-logo.svg">
-  <link rel="apple-touch-icon" sizes="180x180" href="app-logo.png">
+  <link rel="apple-touch-icon" id="apple-touch-icon" sizes="256x256" href="app-logo.png">
+  <script>
+    (function () {
+      var icon = document.getElementById("apple-touch-icon");
+      var scheme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+      if (!icon || !scheme) return;
+      function updateAppleTouchIcon() {
+        icon.href = scheme.matches ? "app-logo-dark.png" : "app-logo.png";
+      }
+      updateAppleTouchIcon();
+      if (scheme.addEventListener) scheme.addEventListener("change", updateAppleTouchIcon);
+      else if (scheme.addListener) scheme.addListener(updateAppleTouchIcon);
+    })();
+  </script>
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
 

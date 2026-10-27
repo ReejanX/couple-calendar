@@ -18,7 +18,7 @@
         tab: "home", year: 0, month: 0, selected: today(),
         events: [], profile: { a: { name: "Reejan", img: "" }, b: { name: "Shreya", img: "" } }, profileExists: false,
         myId: null, evCol: null, profRef: null, memPhotoCol: null, memBoothCol: null,
-        memoryPhotos: [], memoryBooths: {}, memoryMode: "dates", memoryEventId: null, memoryDraft: null, memorySelectedPhotoIds: [], memoryPendingPhotoIds: [], memorySelectedBoothPhotoId: null,
+        memoryPhotos: [], memoryBooths: {}, memoryBoothsLoaded: false, memoryMode: "dates", memoryEventId: null, memoryDraft: null, memorySelectedPhotoIds: [], memoryPendingPhotoIds: [], memorySelectedBoothPhotoId: null,
         editingId: null, detailId: null, saving: false, draft: null
       };
       (function () { var n = new Date(); state.year = n.getFullYear(); state.month = n.getMonth(); })();
@@ -805,6 +805,10 @@
           state.memoryBooths = {};
           snap.docs.forEach(function (d) { state.memoryBooths[d.id] = d.data() || {}; });
           if (state.tab === "mem" && state.memoryMode !== "booth") renderMemories();
+        });
+        window.coupleApp.onMemoriesLoaded(function () {
+          state.memoryBoothsLoaded = true;
+          if (state.tab === "mem" && state.memoryMode === "dates") renderMemories();
         });
 
         if (!window.coupleApp.isClaimed()) setTimeout(showSetupModal, 100);

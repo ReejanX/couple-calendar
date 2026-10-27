@@ -108,6 +108,19 @@
       // ---- Firebase ----
       var fbDb = null;
       var isFirebaseActive = false;
+      var memoriesLoaded = false;
+      var memoryLoadCallbacks = [];
+      function finishMemoriesLoad() {
+        if (memoriesLoaded) return;
+        memoriesLoaded = true;
+        var callbacks = memoryLoadCallbacks.splice(0);
+        callbacks.forEach(function (callback) { try { callback(); } catch (e) { console.warn("Memories load callback failed:", e); } });
+      }
+      function onMemoriesLoaded(callback) {
+        if (typeof callback !== "function") return;
+        if (memoriesLoaded) { callback(); return; }
+        memoryLoadCallbacks.push(callback);
+      }
       if (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey && window.firebase) {
         try {
           var config = Object.assign({}, window.FIREBASE_CONFIG);
@@ -164,16 +177,21 @@
             });
             saveLocalStore(store);
             notify();
-          }, function (error) { reportFirebaseError("memories read", error); });
+            finishMemoriesLoad();
+          }, function (error) { notify(); finishMemoriesLoad(); reportFirebaseError("memories read", error); });
 
           setTimeout(function () { if (claimsStatus === "loading") setStatus("error"); }, 6000);
+          // If Firebase never answers, release the UI with the local cache; a later snapshot still refreshes it.
+          setTimeout(finishMemoriesLoad, 12000);
         } catch (e) {
           console.warn("Firebase sync error:", e);
           isFirebaseActive = false;
+          finishMemoriesLoad();
           syncMode = "error"; syncMessage = "Firebase could not start: " + (e.code || e.message || "check configuration and network");
           setStatus("error");
         }
       } else {
+        finishMemoriesLoad();
         syncMode = window.FIREBASE_CONFIG ? "error" : "local";
         syncMessage = window.FIREBASE_CONFIG ? "Firebase SDK did not load. Use the hosted app or check the network." : "This session is saving on this device only.";
         setStatus("ok"); // local-only mode
@@ -357,6 +375,7 @@
         isClaimed: function () { return !!myUserId; },
         getClaims: claims,
         getSyncStatus: function () { return { mode: syncMode, message: syncMessage }; },
+        onMemoriesLoaded: onMemoriesLoaded,
         getStatus: function () { return claimsStatus; },
         onClaims: function (fn) { claimSubs.push(fn); },
         onSyncError: function (fn) { errSubs.push(fn); },
